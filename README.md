@@ -15,3 +15,9 @@
 ## 数据集 
 [https://pan.baidu.com/share/init?surl=TyXbifoTHubu3zt4jZ90Wg](n9ys)
 
+
+
+## Third_party
+eigen和geographicLib
+可以用过apt安装
+

@@ -1,19 +1,16 @@
 {
   "configurations": [
     {
-      "browse": {
-        "databaseFilename": "${default}",
-        "limitSymbolsToIncludedHeaders": false
-      },
+      "name": "Linux",
       "includePath": [
-        "/opt/ros/melodic/include/**",
-        "/usr/include/**"
+        "/usr/include/**",
+        "/opt/ros/melodic/include/**"
       ],
-      "name": "ROS",
-      "intelliSenseMode": "gcc-x64",
-      "compilerPath": "/usr/bin/gcc",
-      "cStandard": "gnu11",
-      "cppStandard": "c++14"
+      "defines": [],
+      "compilerPath": "/usr/bin/g++",
+      "cStandard": "c17",
+      "cppStandard": "c++14",
+      "intelliSenseMode": "${default}"
     }
   ],
   "version": 4
