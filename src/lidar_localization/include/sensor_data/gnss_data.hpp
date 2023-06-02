@@ -3,7 +3,7 @@
 #include <string>
 #include <vector>
 
-// #include <Geocentric/LocalCartesi
+#include <Geocentric/LocalCartesian.hpp>
 
 namespace lidar_localization {
 class GNNSData {

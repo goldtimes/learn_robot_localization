@@ -4,7 +4,8 @@
       "name": "Linux",
       "includePath": [
         "/usr/include/**",
-        "/opt/ros/melodic/include/**"
+        "/opt/ros/melodic/include/**",
+        "/home/kilox/learn_robot_localization/src/**"
       ],
       "defines": [],
       "compilerPath": "/usr/bin/g++",
