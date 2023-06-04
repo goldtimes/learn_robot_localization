@@ -9,9 +9,9 @@ class OdomPublisher {
  public:
   OdomPublisher() = default;
   OdomPublisher(const ros::NodeHandle& nh_, const std::string& topic_name,
-                const std::string& parent_frame_name, const std::string& child_frame_name,
-                int topic_size);
-  void Publish(const Eigen::Matrix4d& transform);
+                const std::string& parent_frame_name,
+                const std::string& child_frame_name, int topic_size);
+  void Publish(const Eigen::Matrix4f& transform);
 
  private:
   ros::NodeHandle nh_;

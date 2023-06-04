@@ -2,12 +2,14 @@
 
 #include <Eigen/Geometry>
 namespace lh {
-TFListener::TFListener(ros::NodeHandle& nh, std::string base_frame_id, std::string child_frame_id)
+TFListener::TFListener(ros::NodeHandle& nh, const std::string& base_frame_id,
+                       const std::string& child_frame_id)
     : nh_(nh), base_frame_id_(base_frame_id), child_frame_id_(child_frame_id) {}
 bool TFListener::LookupData(Eigen::Matrix4f& transform_matrix) {
   try {
     tf::StampedTransform transform;
-    listener_.lookupTransform(base_frame_id_, child_frame_id_, ros::Time(0), transform);
+    listener_.lookupTransform(base_frame_id_, child_frame_id_, ros::Time(0),
+                              transform);
     TransformToMatrix(transform, transform_matrix);
   } catch (tf::TransformException& e) {
     ROS_ERROR("%s", e.what());
@@ -17,7 +19,8 @@ bool TFListener::LookupData(Eigen::Matrix4f& transform_matrix) {
 
 bool TFListener::TransformToMatrix(const tf::StampedTransform& transform,
                                    Eigen::Matrix4f& transform_matrix) {
-  Eigen::Translation3f tl_btol(transform.getOrigin().getX(), transform.getOrigin().getY(),
+  Eigen::Translation3f tl_btol(transform.getOrigin().getX(),
+                               transform.getOrigin().getY(),
                                transform.getOrigin().getZ());
 
   double roll, pitch, yaw;

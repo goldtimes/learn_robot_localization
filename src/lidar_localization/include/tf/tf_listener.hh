@@ -11,10 +11,11 @@ class TFListener {
   TFListener(ros::NodeHandle& nh, const std::string& base_frame_id,
              const std::string& child_frame_id);
   TFListener() = default;
-  bool LookupData(Eigen::Matrix4d& transform_matrix);
+  bool LookupData(Eigen::Matrix4f& transform_matrix);
 
  private:
-  bool TransformToMatrix(const tf::StampedTransform& transform, Eigen::Matrix4d& matrix);
+  bool TransformToMatrix(const tf::StampedTransform& transform,
+                         Eigen::Matrix4f& matrix);
 
  private:
   ros::NodeHandle nh_;

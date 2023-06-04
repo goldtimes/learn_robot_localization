@@ -1,0 +1,64 @@
+{
+  "session_name": "mobilebase",
+  "windows": [
+    {
+      "window_name": "dev window 1",
+      "layout": "tiled",
+      "shell_command_before": [
+        "source ~/learn_robot_localization/devel/setup.zsh"
+      ],
+      "panes": [
+        {
+          "shell_command": [
+            "roslaunch lidar_localization test_frame.launch"
+          ]
+        },
+        {
+          "shell_command": [
+            "sleep 2",
+            "rosbag play /media/kilox/kitti_2011_10_03_drive_0027_synced.bag"
+          ]
+        },
+        {
+          "shell_command": [
+            "sleep 3"
+          ]
+        },
+        {
+          "shell_command": [
+            "sleep 4"
+          ]
+        }
+      ]
+    },
+    {
+      "window_name": "dev window 2",
+      "layout": "tiled",
+      "shell_command_before": [
+        "source ~/learn_robot_localization/devel/setup.zsh"
+      ],
+      "panes": [
+        {
+          "shell_command": [
+            "sleep 5"
+          ]
+        },
+        {
+          "shell_command": [
+            "sleep 6"
+          ]
+        },
+        {
+          "shell_command": [
+            "source ~/learn_robot_localization/install_isolated/setup.zsh"
+          ]
+        },
+        {
+          "shell_command": [
+            "source ~/learn_robot_localization/install_isolated/setup.zsh"
+          ]
+        }
+      ]
+    }
+  ]
+}

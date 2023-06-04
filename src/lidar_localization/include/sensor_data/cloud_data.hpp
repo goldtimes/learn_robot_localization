@@ -10,7 +10,7 @@ using PointCloudPtr = PointCloud::Ptr;
 
 class CloudData {
  public:
-  CloudData() : cloud_ptr_(new PointCloudPtr()) {}
+  CloudData() : cloud_ptr_(boost::make_shared<PointCloud>()) {}
 
  public:
   double time = 0.0;
