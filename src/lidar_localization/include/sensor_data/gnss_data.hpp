@@ -6,7 +6,7 @@
 #include <Geocentric/LocalCartesian.hpp>
 
 namespace lh {
-class GNNSData {
+class GNSSData {
  public:
   double time = 0.0;
   double longtitude = 0.0;

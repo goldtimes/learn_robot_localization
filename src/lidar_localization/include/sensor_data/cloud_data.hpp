@@ -12,7 +12,7 @@ class CloudData {
  public:
   CloudData() : cloud_ptr_(new PointCloudPtr()) {}
 
- private:
+ public:
   double time = 0.0;
   PointCloudPtr cloud_ptr_;
   // 居然不能使用boost make_shared
