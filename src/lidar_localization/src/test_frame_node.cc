@@ -68,16 +68,11 @@ int main(int argc, char** argv) {
         //
         double dt = earliest_cloud_data.time - earliest_imu_data.time;
         if (dt < -0.05) {
-          ROS_INFO("dt <- 0.05");
-
           cloud_data_buff.pop_front();
         } else if (dt > 0.05) {
-          ROS_INFO("dt > 0.05");
-
           imu_data_buff.pop_front();
           gnss_data_buff.pop_front();
         } else {
-          ROS_INFO("pub data");
           cloud_data_buff.pop_front();
           imu_data_buff.pop_front();
           gnss_data_buff.pop_front();
