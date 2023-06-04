@@ -3,7 +3,7 @@
 #include <pcl/point_types.h>
 // #include <boost/shared_ptr.hpp>
 
-namespace lidar_localization {
+namespace lh {
 using PointXYZ = pcl::PointXYZ;
 using PointCloud = pcl::PointCloud<PointXYZ>;
 using PointCloudPtr = PointCloud::Ptr;
@@ -17,4 +17,4 @@ class CloudData {
   PointCloudPtr cloud_ptr_;
   // 居然不能使用boost make_shared
 };
-}  // namespace lidar_localization
+}  // namespace lh

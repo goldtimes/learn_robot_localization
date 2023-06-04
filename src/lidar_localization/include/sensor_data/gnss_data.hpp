@@ -5,7 +5,7 @@
 
 #include <Geocentric/LocalCartesian.hpp>
 
-namespace lidar_localization {
+namespace lh {
 class GNNSData {
  public:
   double time = 0.0;
@@ -24,4 +24,4 @@ class GNNSData {
   void InitOriginPosition();
   void UpdateXYZ();
 };
-}  // namespace lidar_localization
+}  // namespace lh

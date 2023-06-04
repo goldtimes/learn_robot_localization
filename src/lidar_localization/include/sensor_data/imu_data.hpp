@@ -2,7 +2,7 @@
 
 #include <Eigen/Dense>
 
-namespace lidar_localization {
+namespace lh {
 class ImuData {
  public:
   struct LinearAccelation {
