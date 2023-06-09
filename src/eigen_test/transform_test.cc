@@ -1,4 +1,5 @@
 #include <Eigen/Dense>
+#include <iomanip>
 #include <iostream>
 
 int main(int argc, char** argv) {
@@ -33,9 +34,26 @@ int main(int argc, char** argv) {
   Tj.block<3, 3>(0, 0) = rotate_j;
   Tj.block<4, 1>(0, 3) = vj;
 
-  std::cout << "Ti: " << Ti << std::endl;
-  std::cout << "Tj: " << Tj << std::endl;
-  std::cout << "Ri * Rj.transport: "
-            << (rotate_i * rotate_j.transpose()).eulerAngles(0, 1, 2)
+  // std::cout << "Ti: " << Ti << std::endl;
+  // std::cout << "Tj: " << Tj << std::endl;
+  // std::cout << "Ri * Rj.transport: "
+  //           << (rotate_i * rotate_j.transpose()).eulerAngles(0, 1, 2)
+  //           << std::endl;
+  Eigen::Matrix3d Ri =
+      Eigen::AngleAxisd(M_PI / 2, Eigen::Vector3d(0, 0, 1)).toRotationMatrix();
+  Eigen::Matrix3d Rj =
+      Eigen::AngleAxisd(M_PI / 6, Eigen::Vector3d(0, 0, 1)).toRotationMatrix();
+  std::cout << "Ri: \t" << std::fixed << std::setprecision(3) << Ri
             << std::endl;
+  std::cout << "Ri: \t" << std::fixed << std::setprecision(3) << Rj
+            << std::endl;
+  std::cout << "Ri*Rj.transport(): " << std::fixed << std::setprecision(3)
+            << Ri * Rj.transpose() << std::endl;
+  // 旋转差 居然是一样的Rj.transport() * Ri  = Ri *Rj.transport()
+  std::cout << "Rj.transport() * Ri " << std::fixed << std::setprecision(3)
+            << Rj.transpose() * Ri << std::endl;
+  std::cout << "Ri *Rj.transport()"
+            << (Ri * Rj.transpose()).eulerAngles(0, 1, 2) << std::endl;
+  std::cout << "Rj.transport() * Ri.eular(): "
+            << (Rj.transpose() * Ri).eulerAngles(0, 1, 2) << std::endl;
 }
