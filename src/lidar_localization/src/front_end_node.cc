@@ -2,9 +2,7 @@
 #include <pcl/common/transforms.h>
 #include <ros/ros.h>
 
-#include <memory>
 #include "front_end/front_end.hh"
-#include "front_end/front_end_flow.hh"
 #include "global_defination/global_defination.h"
 #include "publisher/cloud_pub.hh"
 #include "publisher/odom_pub.hh"
@@ -14,39 +12,6 @@
 #include "tf/tf_listener.hh"
 
 using namespace lh;
-
-// std::shared_ptr<FrontEndFlow> _front_end_flow_ptr;
-
-// bool save_map_callback(saveMap::Request &request, saveMap::Response
-// &response) {
-//   response.succeed = _front_end_flow_ptr->SaveMap();
-//   _front_end_flow_ptr->PublishGlobalMap();
-//   return response.succeed;
-// }
-
-// int main(int argc, char *argv[]) {
-//   google::InitGoogleLogging(argv[0]);
-//   FLAGS_log_dir = WORK_SPACE_PATH + "/Log";
-//   FLAGS_alsologtostderr = 1;
-
-//   ros::init(argc, argv, "front_end_node");
-//   ros::NodeHandle nh;
-
-//   // ros::ServiceServer service =
-//   //     nh.advertiseService("save_map", save_map_callback);
-//   _front_end_flow_ptr = std::make_shared<FrontEndFlow>(nh);
-
-//   ros::Rate rate(100);
-//   while (ros::ok()) {
-//     ros::spinOnce();
-
-//     _front_end_flow_ptr->Run();
-
-//     rate.sleep();
-//   }
-
-//   return 0;
-// }
 
 int main(int argc, char** argv) {
   google::InitGoogleLogging(argv[0]);
@@ -142,31 +107,28 @@ int main(int argc, char** argv) {
           odom_matrix(0, 3) = gnss_data.local_E;
           odom_matrix(1, 3) = gnss_data.local_N;
           odom_matrix(2, 3) = gnss_data.local_U;
-          // 这里的旋转矩阵是imu得到的
           odom_matrix.block<3, 3>(0, 0) = imu_data.getOrientationMatrix();
-          // 这里为什么要右乘lidar_to_imu矩阵？
           odom_matrix *= lidar_to_imu;
           gnss_pub_ptr->Publish(odom_matrix);
           // 初始化前端里程计模块
           if (!front_end_pose_inited) {
             front_end_pose_inited = true;
-            front_end_ptr->SetInitPose(odom_matrix);
+            front_end_ptr->setInitPose(odom_matrix);
           }
-          front_end_ptr->SetPredictPose(odom_matrix);
+          front_end_ptr->setPredictPose(odom_matrix);
           // 更新点云
-          Eigen::Matrix4f laser_matrix = Eigen::Matrix4f::Identity();
-          laser_matrix = front_end_ptr->Update(cloud_data);
+          Eigen::Matrix4f laser_matrix = front_end_ptr->update(cloud_data);
           // 发布激光里程计
           laser_odom_pub_ptr->Publish(laser_matrix);
 
-          front_end_ptr->GetCurrentScan(current_scan_ptr);
+          front_end_ptr->getCurrentScan(current_scan_ptr);
           cloud_pub_ptr->Publish(current_scan_ptr);
-          if (front_end_ptr->GetNewLocalMap(local_map_ptr)) {
+          if (front_end_ptr->getNewLocalMap(local_map_ptr)) {
             local_map_pub_ptr->Publish(local_map_ptr);
           }
         }
         if (run_time > 460.0 && !has_global_map_published) {
-          if (front_end_ptr->GetNewGlobalMap(global_map_ptr)) {
+          if (front_end_ptr->getNewGlobalMap(global_map_ptr)) {
             global_map_pub_ptr->Publish(global_map_ptr);
             has_global_map_published = true;
           }
