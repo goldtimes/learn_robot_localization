@@ -42,16 +42,22 @@ catkin_package(
 # 遍历所有的cc文件
 file(GLOB_RECURSE ALL_SRCS "*.cc")
 # 遍历src *_node.cc 
-# file(GLOB_RECURSE NODE_SRCS "src/*_node.cc")
+file(GLOB_RECURSE NODE_SRCS "src/*_node.cc")
 # 遍历 third_party
 file(GLOB_RECURSE THIRD_PARTY_SRCS "third_party/*.cpp")
 # 删除*_node.cc 
-# list(REMOVE_ITEM ALL_SRCS ${NODE_SRCS})
+list(REMOVE_ITEM ALL_SRCS ${NODE_SRCS})
 # 删除 third_party .cc文件
 list(REMOVE_ITEM ALL_SRCS ${THIRD_PARTY_SRCS})
 
 add_executable(test_frame_node src/test_frame_node.cc ${ALL_SRCS})
 target_link_libraries(test_frame_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
+
+add_executable(front_end_node src/front_end_node.cc ${ALL_SRCS})
+target_link_libraries(front_end_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
+
+install(TARGETS front_end_node 
+  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(TARGETS test_frame_node 
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
