@@ -1,0 +1,30 @@
+data_path: /media/kilox
+
+# 匹配方式
+registration_method: NDT
+
+#局部地图
+key_frame_distance: 2.0
+local_frame_num: 20
+local_map_filter: voxel_filter  # 滤波的方式
+
+#rviz 
+display_filter: voxel_filter
+
+#当前帧的滤波方式:
+frame_filter: voxel_filter
+
+#匹配参数
+NDT:
+  res: 1.0
+  step_size: 0.1
+  trans_size: 0.1
+  trans_eps: 0.01
+  max_iter: 30
+voxel_filter:
+  local_map:
+    leaf_size: [0.6,0.6,0.6]
+  frame:
+    leaf_size: [1.3,1.3,1.3]
+  display:
+    leaf_size: [0.5,0.5,0.5]
