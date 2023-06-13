@@ -107,7 +107,9 @@ int main(int argc, char** argv) {
           odom_matrix(0, 3) = gnss_data.local_E;
           odom_matrix(1, 3) = gnss_data.local_N;
           odom_matrix(2, 3) = gnss_data.local_U;
+          // 这里的旋转矩阵是imu得到的
           odom_matrix.block<3, 3>(0, 0) = imu_data.getOrientationMatrix();
+          // 这里为什么要右乘lidar_to_imu矩阵？
           odom_matrix *= lidar_to_imu;
           gnss_pub_ptr->Publish(odom_matrix);
           // 初始化前端里程计模块

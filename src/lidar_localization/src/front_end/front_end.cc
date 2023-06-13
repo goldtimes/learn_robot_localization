@@ -33,35 +33,39 @@ Eigen::Matrix4f FrontEnd::update(const CloudData& cloud_data) {
   // 当前frame
   current_frame_.cloud_data_.time = cloud_data.time;
   std::vector<int> indices;
+  // 去除nan的点
   pcl::removeNaNFromPointCloud(*cloud_data.cloud_ptr_,
                                *current_frame_.cloud_data_.cloud_ptr_, indices);
   // 滤波后的点云
   PointCloudPtr filtered_cloud_ptr(new PointCloud());
   cloud_filter_.setInputCloud(current_frame_.cloud_data_.cloud_ptr_);
   cloud_filter_.filter(*filtered_cloud_ptr);
-
+  // 不一定要用static, 记录初始的位置
   static Eigen::Matrix4f step_pose = Eigen::Matrix4f::Identity();
   static Eigen::Matrix4f last_post = init_pose_;
   static Eigen::Matrix4f predict_post = init_pose_;
   static Eigen::Matrix4f last_key_frame_pose = init_pose_;
   // 容器为空,第一帧的数据
   if (local_map_frames_.size() == 0) {
+    // 当前帧的位姿信息
     current_frame_.pose = init_pose_;
     // 更新局部地图容器和全局地图容器
     updateNewFrame(current_frame_);
     return current_frame_.pose;
   }
   // 不是第一帧的数据
-
+  // 设置想要匹配的点云
   ndt_ptr_->setInputCloud(filtered_cloud_ptr);
   // 点云local_map_ptr去匹配
   ndt_ptr_->align(*match_result_cloud_ptr_, predict_post);
   //   std::cout << "match_result_cloud_ptr_: " <<
   //   match_result_cloud_ptr_->size()
   //             << std::endl;
+  // 获得匹配之后的位姿
   current_frame_.pose = ndt_ptr_->getFinalTransformation();
-  // 更新相邻两帧的相对运动
+  // 更新相邻两帧的相对运动,增量
   step_pose = last_post.inverse() * current_frame_.pose;
+  // 预测的位姿 = 匹配后的位姿 * 增量?
   predict_post = current_frame_.pose * step_pose;
   last_post = current_frame_.pose;
   // 判断相邻两帧的距离 > 0.66
@@ -86,6 +90,8 @@ void FrontEnd::updateNewFrame(const Frame& new_key_frame) {
     local_map_frames_.pop_front();
   }
   local_map_ptr_.reset(new PointCloud());
+  // 因为记录的pose是map坐标系下的姿态,所以通过transformPointCloud将lidar下面的点云转换到
+  // map坐标系下
   for (int i = 0; i < local_map_frames_.size(); ++i) {
     // 将激光雷达坐标系下的点云转换成map坐标系下的点云
     pcl::transformPointCloud(*local_map_frames_.at(i).cloud_data_.cloud_ptr_,
