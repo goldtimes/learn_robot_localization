@@ -5,7 +5,7 @@
 namespace lh {
 class NDTRegistration : public RegistrationInterface {
  public:
-  NDTRegistration(const YAML::node& node);
+  NDTRegistration(const YAML::Node& node);
   NDTRegistration(float res, float step_size, float trans_eps, int max_iter);
 
   bool setInputTraget(const PointCloudPtr& input_target) override;
