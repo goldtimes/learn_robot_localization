@@ -42,8 +42,8 @@ Eigen::Matrix4f FrontEnd::update(const CloudData& cloud_data) {
   cloud_filter_.filter(*filtered_cloud_ptr);
   // 不一定要用static, 记录初始的位置
   static Eigen::Matrix4f step_pose = Eigen::Matrix4f::Identity();
-  static Eigen::Matrix4f last_post = init_pose_;
-  static Eigen::Matrix4f predict_post = init_pose_;
+  static Eigen::Matrix4f last_pose = init_pose_;
+  static Eigen::Matrix4f predict_pose = init_pose_;
   static Eigen::Matrix4f last_key_frame_pose = init_pose_;
   // 容器为空,第一帧的数据
   if (local_map_frames_.size() == 0) {
