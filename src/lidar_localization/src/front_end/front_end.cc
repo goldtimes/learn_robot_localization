@@ -154,6 +154,10 @@ bool FrontEnd::Update(const CloudData&, Eigen::Matrix4f& cloud_pose) {
 }
 
 void FrontEnd::updateNewFrame(const Frame& new_key_frame) {
+  // 将关键帧点云存储在硬盘中
+  std::string file_path = data_path_ + "/key_frames/key_frame_" +
+                          std::to_string(global_map_frames_.size()) + ".pcd";
+  pcl::io::savePCDFileBinary(file_path, *new_key_frame.cloud_data.cloud_ptr);
   Frame key_frame = new_key_frame;
   key_frame.cloud_data_.cloud_ptr_.reset(
       new PointCloud(*new_key_frame.cloud_data_.cloud_ptr_));
@@ -178,31 +182,42 @@ void FrontEnd::updateNewFrame(const Frame& new_key_frame) {
   has_new_local_map = true;
   // 更新ndt匹配的目标点云
   if (local_map_frames_.size() < 10) {
-    ndt_ptr_->setInputTarget(local_map_ptr_);
+    registration_ptr_->setInputTarget(local_map_ptr_);
   } else {
     // 大于10帧，经过过滤后在匹配
     PointCloudPtr filter_local_map_ptr(new PointCloud());
     local_map_filter_.setInputCloud(local_map_ptr_);
     local_map_filter_.filter(*filter_local_map_ptr);
-    ndt_ptr_->setInputTarget(filter_local_map_ptr);
+    registration_ptr_->setInputTarget(filter_local_map_ptr);
   }
-  // 更新全局地图
+  key_frame.cloud_data.cloud_ptr.reset(new CloudData::CLOUD());
   global_map_frames_.push_back(key_frame);
-  if (global_map_frames_.size() % 100 != 0) {
-    return;
-  } else {
-    global_map_ptr_.reset(new PointCloud());
-    for (int i = 0; i < global_map_frames_.size(); ++i) {
-      pcl::transformPointCloud(*global_map_frames_.at(i).cloud_data_.cloud_ptr_,
-                               *transformed_cloud_ptr,
-                               global_map_frames_.at(i).pose);
-      *global_map_ptr_ += *transformed_cloud_ptr;
-    }
-    has_new_global_map = true;
-  }
+  return true;
 }
 
-bool FrontEnd::SaveMap() {}
+bool FrontEnd::saveMap() {
+  global_map_ptr_.reset(new CloudData::CLOUD());
+
+  std::string key_frame_path = "";
+  PointCloudPtr key_frame_cloud_ptr(new CloudData::CLOUD());
+  PointCloudPtr transformed_cloud_ptr(new CloudData::CLOUD());
+
+  for (size_t i = 0; i < global_map_frames_.size(); ++i) {
+    key_frame_path =
+        data_path + "/key_frames/key_frame_" + std::to_string(i) + ".pcd";
+    pcl::io::loadPCDFile(key_frame_path, *key_frame_cloud_ptr);
+
+    pcl::transformPointCloud(*key_frame_cloud_ptr, *transformed_cloud_ptr,
+                             global_map_frames_.at(i).pose);
+    *global_map_ptr_ += *transformed_cloud_ptr;
+  }
+
+  std::string map_file_path = data_path + "/map.pcd";
+  pcl::io::savePCDFileBinary(map_file_path, *global_map_ptr_);
+  has_new_global_map_ = true;
+
+  return true;
+}
 
 bool FrontEnd::getNewLocalMap(PointCloudPtr& local_map_ptr) {
   if (has_new_local_map) {

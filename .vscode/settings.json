@@ -74,6 +74,7 @@
         "set": "cpp",
         "string": "cpp",
         "string_view": "cpp",
-        "dense": "cpp"
+        "dense": "cpp",
+        "*.ipp": "cpp"
     }
 }

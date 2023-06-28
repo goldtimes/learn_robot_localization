@@ -57,8 +57,8 @@ class FrontEnd {
   std::deque<Frame> local_map_frames_;
   std::deque<Frame> global_map_frames_;
 
-  bool has_new_local_map = false;
-  bool has_new_global_map = false;
+  bool has_new_local_map_ = false;
+  bool has_new_global_map_ = false;
 
   PointCloudPtr local_map_ptr_;
   PointCloudPtr global_map_ptr_;
