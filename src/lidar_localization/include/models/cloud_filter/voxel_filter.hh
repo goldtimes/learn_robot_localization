@@ -1,9 +1,10 @@
+#pragma once
 /**
  *  点云滤波类
  */
 
 #include <pcl/filters/voxel_grid.h>
-#include "models/cloud_filter/cloud_filter_interface.hh"
+#include "cloud_filter_interface.hh"
 
 namespace lh {
 class VoxelFilter : public CloudFilterInterface {

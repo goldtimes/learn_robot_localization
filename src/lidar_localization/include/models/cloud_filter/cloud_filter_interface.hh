@@ -1,3 +1,4 @@
+#pragma once
 #include <yaml-cpp/yaml.h>
 #include "sensor_data/cloud_data.hpp"
 

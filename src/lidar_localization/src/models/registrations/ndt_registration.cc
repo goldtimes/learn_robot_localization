@@ -25,7 +25,7 @@ bool NDTRegistration::SetRegistrationParam(float res, float step_size,
   return true;
 }
 
-bool NDTRegistration::setInputTraget(const PointCloudPtr& input_target) {
+bool NDTRegistration::SetInputTraget(const PointCloudPtr& input_target) {
   ndt_ptr_->setInputCloud(input_target);
   return true;
 }

@@ -1,4 +1,5 @@
-data_path: /media/kilox
+# 点云存放的位置
+data_path: ./  
 
 # 匹配方式
 registration_method: NDT

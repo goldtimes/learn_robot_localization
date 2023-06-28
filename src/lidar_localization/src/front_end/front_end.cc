@@ -1,11 +1,12 @@
 #include "front_end/front_end.hh"
 #include <glog/logging.h>
 #include <pcl/common/transforms.h>
+#include <pcl/io/pcd_io.h>
 #include <boost/filesystem.hpp>
 #include <cmath>
 #include <string>
 #include <vector>
-#include "lidar_localization/global_defination/global_defination.h"
+#include "global_defination/global_defination.h"
 
 namespace lh {
 FrontEnd::FrontEnd()
@@ -18,11 +19,11 @@ bool FrontEnd::InitWithConfig() {
   std::string config_file_path =
       WORK_SPACE_PATH + "/config/front_end/config.yaml";
   YAML::Node config_node = YAML::LoadFile(config_file_path);
-  InitDataPath(config_node);
-  InitRegistration(registration_ptr_, config_node);
-  InitFilter("local_map", local_map_filter_ptr_, config_node);
-  InitFilter("frame", frame_filter_ptr_, config_node);
-  InitFilter("display", display_filter_ptr_, config_node);
+  initDataPath(config_node);
+  initRegistration(registration_ptr_, config_node);
+  initFilter("local_map", local_map_filter_ptr_, config_node);
+  initFilter("frame", frame_filter_ptr_, config_node);
+  initFilter("display", display_filter_ptr_, config_node);
 }
 
 bool FrontEnd::initParam(const YAML::Node& config_node) {
@@ -44,14 +45,14 @@ bool FrontEnd::initDataPath(const YAML::Node& config_node) {
 
   boost::filesystem::create_directory(data_path);
   if (!boost::filesystem::is_directory(data_path)) {
-    LOG(WARNING) << "文件夹 " << data_path_ << " 未创建成功!";
+    LOG(WARNING) << "文件夹 " << data_path << " 未创建成功!";
     return false;
   } else {
-    LOG(INFO) << "地图点云存放地址：" << data_path_;
+    LOG(INFO) << "地图点云存放地址：" << data_path;
   }
 
   std::string key_frame_path = data_path + "/key_frames";
-  boost::filesystem::create_directory(data_path_ + "/key_frames");
+  boost::filesystem::create_directory(data_path + "/key_frames");
   if (!boost::filesystem::is_directory(key_frame_path)) {
     LOG(WARNING) << "文件夹 " << key_frame_path << " 未创建成功!";
     return false;
@@ -102,12 +103,8 @@ bool FrontEnd::setInitPose(const Eigen::Matrix4f& init_pose) {
   return true;
 }
 
-bool FrontEnd::setPredictPose(const Eigen::Matrix4f& predict_pose) {
-  predict_pose_ = predict_pose;
-  return true;
-}
-
-bool FrontEnd::Update(const CloudData&, Eigen::Matrix4f& cloud_pose) {
+bool FrontEnd::Update(const CloudData& cloud_data,
+                      Eigen::Matrix4f& cloud_pose) {
   // 当前frame
   current_frame_.cloud_data_.time = cloud_data.time;
   std::vector<int> indices;
@@ -116,8 +113,8 @@ bool FrontEnd::Update(const CloudData&, Eigen::Matrix4f& cloud_pose) {
                                *current_frame_.cloud_data_.cloud_ptr_, indices);
   // 滤波后的点云
   PointCloudPtr filtered_cloud_ptr(new PointCloud());
-  frame_filter_ptr_.Filter(current_frame_.cloud_data_.cloud_ptr_,
-                           filtered_cloud_ptr);
+  frame_filter_ptr_->Filter(current_frame_.cloud_data_.cloud_ptr_,
+                            filtered_cloud_ptr);
   // 不一定要用static, 记录初始的位置
   static Eigen::Matrix4f step_pose = Eigen::Matrix4f::Identity();
   static Eigen::Matrix4f last_pose = init_pose_;
@@ -153,11 +150,11 @@ bool FrontEnd::Update(const CloudData&, Eigen::Matrix4f& cloud_pose) {
   return true;
 }
 
-void FrontEnd::updateNewFrame(const Frame& new_key_frame) {
+bool FrontEnd::updateNewFrame(const Frame& new_key_frame) {
   // 将关键帧点云存储在硬盘中
-  std::string file_path = data_path_ + "/key_frames/key_frame_" +
+  std::string file_path = data_path + "/key_frames/key_frame_" +
                           std::to_string(global_map_frames_.size()) + ".pcd";
-  pcl::io::savePCDFileBinary(file_path, *new_key_frame.cloud_data.cloud_ptr);
+  pcl::io::savePCDFileBinary(file_path, *new_key_frame.cloud_data_.cloud_ptr_);
   Frame key_frame = new_key_frame;
   key_frame.cloud_data_.cloud_ptr_.reset(
       new PointCloud(*new_key_frame.cloud_data_.cloud_ptr_));
@@ -179,28 +176,27 @@ void FrontEnd::updateNewFrame(const Frame& new_key_frame) {
     // local_map 不是一帧，而是二十帧的点云集合
     *local_map_ptr_ += *transformed_cloud_ptr;
   }
-  has_new_local_map = true;
+  has_new_local_map_ = true;
   // 更新ndt匹配的目标点云
   if (local_map_frames_.size() < 10) {
-    registration_ptr_->setInputTarget(local_map_ptr_);
+    registration_ptr_->SetInputTraget(local_map_ptr_);
   } else {
     // 大于10帧，经过过滤后在匹配
     PointCloudPtr filter_local_map_ptr(new PointCloud());
-    local_map_filter_.setInputCloud(local_map_ptr_);
-    local_map_filter_.filter(*filter_local_map_ptr);
-    registration_ptr_->setInputTarget(filter_local_map_ptr);
+    local_map_filter_ptr_->Filter(local_map_ptr_, filter_local_map_ptr);
+    registration_ptr_->SetInputTraget(filter_local_map_ptr);
   }
-  key_frame.cloud_data.cloud_ptr.reset(new CloudData::CLOUD());
+  key_frame.cloud_data_.cloud_ptr_.reset(new PointCloud());
   global_map_frames_.push_back(key_frame);
   return true;
 }
 
 bool FrontEnd::saveMap() {
-  global_map_ptr_.reset(new CloudData::CLOUD());
+  global_map_ptr_.reset(new PointCloud());
 
   std::string key_frame_path = "";
-  PointCloudPtr key_frame_cloud_ptr(new CloudData::CLOUD());
-  PointCloudPtr transformed_cloud_ptr(new CloudData::CLOUD());
+  PointCloudPtr key_frame_cloud_ptr(new PointCloud());
+  PointCloudPtr transformed_cloud_ptr(new PointCloud());
 
   for (size_t i = 0; i < global_map_frames_.size(); ++i) {
     key_frame_path =
@@ -220,26 +216,23 @@ bool FrontEnd::saveMap() {
 }
 
 bool FrontEnd::getNewLocalMap(PointCloudPtr& local_map_ptr) {
-  if (has_new_local_map) {
-    display_filter_.setInputCloud(local_map_ptr_);
-    display_filter_.filter(*local_map_ptr);
+  if (has_new_local_map_) {
+    display_filter_ptr_->Filter(local_map_ptr_, local_map_ptr);
     return true;
   }
   return false;
 }
 
 bool FrontEnd::getNewGlobalMap(PointCloudPtr& global_map_ptr) {
-  if (has_new_global_map) {
-    display_filter_.setInputCloud(global_map_ptr_);
-    display_filter_.filter(*global_map_ptr);
+  if (has_new_global_map_) {
+    display_filter_ptr_->Filter(global_map_ptr_, global_map_ptr);
     return true;
   }
   return false;
 }
 
 bool FrontEnd::getCurrentScan(PointCloudPtr& current_scan_ptr) {
-  display_filter_.setInputCloud(match_result_cloud_ptr_);
-  display_filter_.filter(*current_scan_ptr);
+  display_filter_ptr_->Filter(match_result_cloud_ptr_, current_scan_ptr);
   return true;
 }
 }  // namespace lh

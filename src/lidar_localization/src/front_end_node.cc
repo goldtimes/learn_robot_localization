@@ -4,6 +4,7 @@
 
 #include <memory>
 #include "front_end/front_end.hh"
+#include "front_end/front_end_flow.hh"
 #include "global_defination/global_defination.h"
 #include "publisher/cloud_pub.hh"
 #include "publisher/odom_pub.hh"
@@ -23,8 +24,8 @@ int main(int argc, char** argv) {
   ros::init(argc, argv, "front_end_node");
   ros::NodeHandle nh;
 
-  ros::ServiceServer service =
-      nh.advertiseService("save_map", save_map_callback);
+  // ros::ServiceServer service =
+  //     nh.advertiseService("save_map", save_map_callback);
   front_end_flow_ptr = std::make_shared<FrontEndFlow>(nh);
   ros::Rate rate(100);
   while (ros::ok()) {

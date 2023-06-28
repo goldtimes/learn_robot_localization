@@ -16,8 +16,8 @@ FrontEndFlow::FrontEndFlow(ros::NodeHandle& nh) {
       std::make_shared<CloudPublisher>(nh, "local_map", 100, "/map");
   cloud_pub_ptr_ =
       std::make_shared<CloudPublisher>(nh, "global_map", 100, "/map");
-  lidar_odom_pub_ptr_ = std::make_shared<OdomPublisher>(nh, "laser_odom", 100,
-                                                        "map", "lidar", 100);
+  lidar_odom_pub_ptr_ =
+      std::make_shared<OdomPublisher>(nh, "laser_odom", "map", "lidar", 100);
   gnss_odom_pub_ptr_ =
       std::make_shared<OdomPublisher>(nh, "gnss", "map", "lidar", 100);
 
@@ -128,7 +128,7 @@ bool FrontEndFlow::UpdateLaserOdometry() {
     return true;
   }
   lidar_odom_ = Eigen::Matrix4f::Identity();
-  if (front_end_ptr_->update(current_cloud_data_, lidar_odom_)) {
+  if (front_end_ptr_->Update(current_cloud_data_, lidar_odom_)) {
     return true;
   } else
     return false;
@@ -147,7 +147,7 @@ bool FrontEndFlow::PublishData() {
   return true;
 }
 
-bool FrontEndFlow::SaveMap() { return front_end_ptr_->SaveMap(); }
+bool FrontEndFlow::SaveMap() { return front_end_ptr_->saveMap(); }
 
 bool FrontEndFlow::PublishGlobalMap() {
   if (front_end_ptr_->getNewGlobalMap(global_map_ptr_)) {

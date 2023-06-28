@@ -6,7 +6,6 @@ SET(CMAKE_BUILD_TYPE "Release")
 add_compile_options(-std=c++11)
 add_definitions(-std=c++11)
 
-
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
@@ -33,6 +32,7 @@ include(cmake/glog.cmake)
 include(cmake/PCL.cmake)
 include(cmake/geographic.cmake)
 include(cmake/global_defination.cmake)
+include(cmake/YAML.cmake)
 catkin_package(
 #  INCLUDE_DIRS include
 #  LIBRARIES lidar_localization

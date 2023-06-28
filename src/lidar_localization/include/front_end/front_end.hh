@@ -45,7 +45,7 @@ class FrontEnd {
   bool initFilter(std::string filter_use,
                   std::shared_ptr<CloudFilterInterface>& filter_ptr,
                   const YAML::Node& node);
-  void updateNewFrame(const Frame& new_key_frame);
+  bool updateNewFrame(const Frame& new_key_frame);
 
  private:
   std::string data_path = "";
@@ -64,6 +64,7 @@ class FrontEnd {
   PointCloudPtr global_map_ptr_;
   PointCloudPtr match_result_cloud_ptr_;
 
+  Eigen::Matrix4f init_pose_ = Eigen::Matrix4f::Identity();
   Frame current_frame_;
 
   float key_frame_distance_ = 2.0;
