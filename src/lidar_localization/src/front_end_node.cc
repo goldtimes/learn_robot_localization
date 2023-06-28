@@ -144,12 +144,12 @@ int main(int argc, char** argv) {
 //           // 更新点云
 //           Eigen::Matrix4f laser_matrix = front_end_ptr->update(cloud_data);
 //           // 发布激光里程计
-//           laser_odom_pub_ptr->Publish(laser_matrix);
+// laser_odom_pub_ptr->Publish(laser_matrix);
 
 //           front_end_ptr->getCurrentScan(current_scan_ptr);
 //           cloud_pub_ptr->Publish(current_scan_ptr);
 //           if (front_end_ptr->getNewLocalMap(local_map_ptr)) {
-//             local_map_pub_ptr->Publish(local_map_ptr);
+// local_map_pub_ptr->Publish(local_map_ptr);
 //           }
 //         }
 //         if (run_time > 460.0 && !has_global_map_published) {

@@ -1,24 +1,102 @@
 #include "front_end/front_end.hh"
 #include <glog/logging.h>
 #include <pcl/common/transforms.h>
+#include <boost/filesystem.hpp>
 #include <cmath>
+#include <string>
 #include <vector>
+#include "lidar_localization/global_defination/global_defination.h"
 
 namespace lh {
 FrontEnd::FrontEnd()
-    : ndt_ptr_(new pcl::NormalDistributionsTransform<PointXYZ, PointXYZ>()),
-      local_map_ptr_(new PointCloud()),
+    : local_map_ptr_(new PointCloud()),
       global_map_ptr_(new PointCloud()),
       match_result_cloud_ptr_(new PointCloud()) {
-  // 过滤的参数
-  cloud_filter_.setLeafSize(1.3, 1.3, 1.3);
-  local_map_filter_.setLeafSize(0.6, 0.6, 0.6);
-  display_filter_.setLeafSize(0.5, 0.5, 0.5);
-  ndt_ptr_->setResolution(1.0);
-  ndt_ptr_->setStepSize(0.1);
-  ndt_ptr_->setTransformationEpsilon(0.1);
-  ndt_ptr_->setMaximumIterations(30);
+  InitWithConfig();
 }
+bool FrontEnd::InitWithConfig() {
+  std::string config_file_path =
+      WORK_SPACE_PATH + "/config/front_end/config.yaml";
+  YAML::Node config_node = YAML::LoadFile(config_file_path);
+  InitDataPath(config_node);
+  InitRegistration(registration_ptr_, config_node);
+  InitFilter("local_map", local_map_filter_ptr_, config_node);
+  InitFilter("frame", frame_filter_ptr_, config_node);
+  InitFilter("display", display_filter_ptr_, config_node);
+}
+
+bool FrontEnd::initParam(const YAML::Node& config_node) {
+  key_frame_distance_ = config_node["key_frame_distance"].as<float>();
+  local_frame_num_ = config_node["local_frame_num"].as<int>();
+
+  return true;
+}
+
+bool FrontEnd::initDataPath(const YAML::Node& config_node) {
+  data_path = config_node["data_path"].as<std::string>();
+  if (data_path == "./") {
+    data_path = WORK_SPACE_PATH;
+  }
+  data_path += "/slam_data";
+  if (boost::filesystem::is_directory(data_path)) {
+    boost::filesystem::remove_all(data_path);
+  }
+
+  boost::filesystem::create_directory(data_path);
+  if (!boost::filesystem::is_directory(data_path)) {
+    LOG(WARNING) << "文件夹 " << data_path_ << " 未创建成功!";
+    return false;
+  } else {
+    LOG(INFO) << "地图点云存放地址：" << data_path_;
+  }
+
+  std::string key_frame_path = data_path + "/key_frames";
+  boost::filesystem::create_directory(data_path_ + "/key_frames");
+  if (!boost::filesystem::is_directory(key_frame_path)) {
+    LOG(WARNING) << "文件夹 " << key_frame_path << " 未创建成功!";
+    return false;
+  } else {
+    LOG(INFO) << "关键帧点云存放地址：" << key_frame_path << std::endl
+              << std::endl;
+  }
+  return true;
+}
+bool FrontEnd::initRegistration(
+    std::shared_ptr<RegistrationInterface>& registration_ptr,
+    const YAML::Node& config_node) {
+  std::string registration_method =
+      config_node["registration_method"].as<std::string>();
+  LOG(INFO) << "点云匹配方式为：" << registration_method;
+  if (registration_method == "NDT") {
+    registration_ptr_ =
+        std::make_shared<NDTRegistration>(config_node[registration_method]);
+  } else {
+    LOG(ERROR) << "没找到与 " << registration_method
+               << " 相对应的点云匹配方式!";
+    return false;
+  }
+  return true;
+}
+
+bool FrontEnd::initFilter(std::string filter_user,
+                          std::shared_ptr<CloudFilterInterface>& filter_ptr,
+                          const YAML::Node& config_node) {
+  std::string filter_mothod =
+      config_node[filter_user + "_filter"].as<std::string>();
+  LOG(INFO) << filter_user << "选择的滤波方法为：" << filter_mothod;
+
+  if (filter_mothod == "voxel_filter") {
+    filter_ptr =
+        std::make_shared<VoxelFilter>(config_node[filter_mothod][filter_user]);
+  } else {
+    LOG(ERROR) << "没有为 " << filter_user << " 找到与 " << filter_mothod
+               << " 相对应的滤波方法!";
+    return false;
+  }
+
+  return true;
+}
+
 bool FrontEnd::setInitPose(const Eigen::Matrix4f& init_pose) {
   init_pose_ = init_pose;
   return true;
@@ -29,7 +107,7 @@ bool FrontEnd::setPredictPose(const Eigen::Matrix4f& predict_pose) {
   return true;
 }
 
-Eigen::Matrix4f FrontEnd::update(const CloudData& cloud_data) {
+bool FrontEnd::Update(const CloudData&, Eigen::Matrix4f& cloud_pose) {
   // 当前frame
   current_frame_.cloud_data_.time = cloud_data.time;
   std::vector<int> indices;
@@ -38,8 +116,8 @@ Eigen::Matrix4f FrontEnd::update(const CloudData& cloud_data) {
                                *current_frame_.cloud_data_.cloud_ptr_, indices);
   // 滤波后的点云
   PointCloudPtr filtered_cloud_ptr(new PointCloud());
-  cloud_filter_.setInputCloud(current_frame_.cloud_data_.cloud_ptr_);
-  cloud_filter_.filter(*filtered_cloud_ptr);
+  frame_filter_ptr_.Filter(current_frame_.cloud_data_.cloud_ptr_,
+                           filtered_cloud_ptr);
   // 不一定要用static, 记录初始的位置
   static Eigen::Matrix4f step_pose = Eigen::Matrix4f::Identity();
   static Eigen::Matrix4f last_pose = init_pose_;
@@ -51,31 +129,28 @@ Eigen::Matrix4f FrontEnd::update(const CloudData& cloud_data) {
     current_frame_.pose = init_pose_;
     // 更新局部地图容器和全局地图容器
     updateNewFrame(current_frame_);
-    return current_frame_.pose;
+    cloud_pose = current_frame_.pose;
+    return true;
   }
+
   // 不是第一帧的数据
-  // 设置想要匹配的点云
-  ndt_ptr_->setInputCloud(filtered_cloud_ptr);
-  // 点云local_map_ptr去匹配
-  ndt_ptr_->align(*match_result_cloud_ptr_, predict_post);
-  //   std::cout << "match_result_cloud_ptr_: " <<
-  //   match_result_cloud_ptr_->size()
-  //             << std::endl;
-  // 获得匹配之后的位姿
-  current_frame_.pose = ndt_ptr_->getFinalTransformation();
+  registration_ptr_->scanMatch(filtered_cloud_ptr, predict_pose,
+                               match_result_cloud_ptr_, current_frame_.pose);
+  cloud_pose = current_frame_.pose;
   // 更新相邻两帧的相对运动,增量
-  step_pose = last_post.inverse() * current_frame_.pose;
+  step_pose = last_pose.inverse() * current_frame_.pose;
   // 预测的位姿 = 匹配后的位姿 * 增量?
-  predict_post = current_frame_.pose * step_pose;
-  last_post = current_frame_.pose;
+  predict_pose = current_frame_.pose * step_pose;
+  last_pose = current_frame_.pose;
   // 判断相邻两帧的距离 > 0.66
   if ((fabs(last_key_frame_pose(0, 3) - current_frame_.pose(0, 3)) +
        fabs(last_key_frame_pose(1, 3) - current_frame_.pose(1, 3)) +
-       fabs(last_key_frame_pose(2, 3) - current_frame_.pose(2, 3))) > 2.0) {
+       fabs(last_key_frame_pose(2, 3) - current_frame_.pose(2, 3))) >
+      key_frame_distance_) {
     updateNewFrame(current_frame_);
     last_key_frame_pose = current_frame_.pose;
   }
-  return current_frame_.pose;
+  return true;
 }
 
 void FrontEnd::updateNewFrame(const Frame& new_key_frame) {
@@ -126,6 +201,8 @@ void FrontEnd::updateNewFrame(const Frame& new_key_frame) {
     has_new_global_map = true;
   }
 }
+
+bool FrontEnd::SaveMap() {}
 
 bool FrontEnd::getNewLocalMap(PointCloudPtr& local_map_ptr) {
   if (has_new_local_map) {

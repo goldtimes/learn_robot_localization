@@ -14,12 +14,27 @@ namespace lh {
 class FrontEndFlow {
  public:
   FrontEndFlow(ros::NodeHandle& nh);
+  bool Run();
+  bool SaveMap();
+  bool PublishGlobalMap();
+
+ private:
+  bool ReadData();
+  // lidar_to_imu的坐标变换
+  bool InitCalibration();
+  bool InitGNSS();
+  bool HasData();
+  bool ValidData();
+  bool UpdateGNSSOdometry();
+  bool UpdateLaserOdometry();
+  bool PublishData();
 
  private:
   std::shared_ptr<CloudSubscriber> cloud_sub_ptr_;
   std::shared_ptr<IMUSub> imu_sub_ptr_;
   std::shared_ptr<GNSSSubscriber> gnss_sub_ptr_;
   std::shared_ptr<TFListener> lidar_to_imu_ptr_;
+  std::shared_ptr<CloudPublisher> cloud_pub_ptr_;
   std::shared_ptr<CloudPublisher> local_map_pub_ptr_;
   std::shared_ptr<CloudPublisher> global_map_pub_ptr_;
   std::shared_ptr<OdomPublisher> lidar_odom_pub_ptr_;
