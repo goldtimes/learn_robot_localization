@@ -127,9 +127,10 @@ bool FrontEnd::Update(const CloudData& cloud_data,
     // 更新局部地图容器和全局地图容器
     updateNewFrame(current_frame_);
     cloud_pose = current_frame_.pose;
+    std::cout << "第一帧" << std::endl;
     return true;
   }
-
+  std::cout << "scanMatch" << std::endl;
   // 不是第一帧的数据
   registration_ptr_->scanMatch(filtered_cloud_ptr, predict_pose,
                                match_result_cloud_ptr_, current_frame_.pose);
@@ -144,9 +145,12 @@ bool FrontEnd::Update(const CloudData& cloud_data,
        fabs(last_key_frame_pose(1, 3) - current_frame_.pose(1, 3)) +
        fabs(last_key_frame_pose(2, 3) - current_frame_.pose(2, 3))) >
       key_frame_distance_) {
+    std::cout << "key_frame" << std::endl;
     updateNewFrame(current_frame_);
     last_key_frame_pose = current_frame_.pose;
   }
+  std::cout << "success" << std::endl;
+
   return true;
 }
 
@@ -162,7 +166,7 @@ bool FrontEnd::updateNewFrame(const Frame& new_key_frame) {
   PointCloudPtr transformed_cloud_ptr(new PointCloud());
   // localmap deque维护的frame个数是20个
   local_map_frames_.push_back(key_frame);
-  while (local_map_frames_.size() > 20) {
+  while (local_map_frames_.size() > 1) {
     local_map_frames_.pop_front();
   }
   local_map_ptr_.reset(new PointCloud());
@@ -179,12 +183,14 @@ bool FrontEnd::updateNewFrame(const Frame& new_key_frame) {
   has_new_local_map_ = true;
   // 更新ndt匹配的目标点云
   if (local_map_frames_.size() < 10) {
-    registration_ptr_->SetInputTraget(local_map_ptr_);
+    std::cout << "local_map_ptr_: " << local_map_ptr_->size() << std::endl;
+
+    registration_ptr_->SetInputTarget(local_map_ptr_);
   } else {
     // 大于10帧，经过过滤后在匹配
     PointCloudPtr filter_local_map_ptr(new PointCloud());
     local_map_filter_ptr_->Filter(local_map_ptr_, filter_local_map_ptr);
-    registration_ptr_->SetInputTraget(filter_local_map_ptr);
+    registration_ptr_->SetInputTarget(local_map_ptr_);
   }
   key_frame.cloud_data_.cloud_ptr_.reset(new PointCloud());
   global_map_frames_.push_back(key_frame);

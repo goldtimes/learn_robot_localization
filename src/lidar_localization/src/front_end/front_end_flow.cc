@@ -83,7 +83,6 @@ bool FrontEndFlow::HasData() {
   if (imu_data_buff_.size() == 0) return false;
 
   if (gnss_data_buff_.size() == 0) return false;
-  std::cout << "has data" << std::endl;
   return true;
 }
 

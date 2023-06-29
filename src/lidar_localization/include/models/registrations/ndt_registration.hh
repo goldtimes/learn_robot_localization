@@ -8,11 +8,11 @@ class NDTRegistration : public RegistrationInterface {
   NDTRegistration(const YAML::Node& node);
   NDTRegistration(float res, float step_size, float trans_eps, int max_iter);
 
-  bool SetInputTraget(const PointCloudPtr& input_target) override;
+  bool SetInputTarget(const PointCloudPtr& input_target) override;
   bool scanMatch(const PointCloudPtr& input_source,
                  const Eigen::Matrix4f& predict_pose,
                  PointCloudPtr& result_cloud_ptr,
-                 Eigen::Matrix4f result_pose) override;
+                 Eigen::Matrix4f& result_pose) override;
 
  private:
   bool SetRegistrationParam(float res, float step_size, float trans_eps,

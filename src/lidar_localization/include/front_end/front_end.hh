@@ -19,14 +19,14 @@ namespace lh {
 
 // 关键帧作为地图，我们要保存地图的位姿和点云数据
 
+struct Frame {
+ public:
+  Eigen::Matrix4f pose = Eigen::Matrix4f::Identity();
+  CloudData cloud_data_;
+};
+
 class FrontEnd {
  public:
-  struct Frame {
-   public:
-    Eigen::Matrix4f pose = Eigen::Matrix4f::Identity();
-    CloudData cloud_data_;
-  };
-
   FrontEnd();
   bool InitWithConfig();
   bool Update(const CloudData&, Eigen::Matrix4f& cloud_pose);

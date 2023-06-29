@@ -27,14 +27,15 @@ bool NDTRegistration::SetRegistrationParam(float res, float step_size,
   return true;
 }
 
-bool NDTRegistration::SetInputTraget(const PointCloudPtr& input_target) {
-  ndt_ptr_->setInputCloud(input_target);
+bool NDTRegistration::SetInputTarget(const PointCloudPtr& input_target) {
+  ndt_ptr_->setInputTarget(input_target);
+  std::cout << "SetInputTarget" << std::endl;
   return true;
 }
 bool NDTRegistration::scanMatch(const PointCloudPtr& input_source,
                                 const Eigen::Matrix4f& predict_pose,
                                 PointCloudPtr& result_cloud_ptr,
-                                Eigen::Matrix4f result_pose) {
+                                Eigen::Matrix4f& result_pose) {
   ndt_ptr_->setInputSource(input_source);
   ndt_ptr_->align(*result_cloud_ptr, predict_pose);
   result_pose = ndt_ptr_->getFinalTransformation();

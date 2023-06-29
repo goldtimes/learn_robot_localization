@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
   FLAGS_log_dir = WORK_SPACE_PATH + "/Log";
   FLAGS_alsologtostderr = 1;
   // 帮助打印错误的log
-  google::InitGoogleLogging("lidar_localization");
+  google::InitGoogleLogging(argv[0]);
   google::InstallFailureSignalHandler();
   ros::init(argc, argv, "front_end_node");
   ros::NodeHandle nh;
