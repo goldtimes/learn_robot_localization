@@ -12,9 +12,9 @@ FrontEndFlow::FrontEndFlow(ros::NodeHandle& nh) {
 
   cloud_pub_ptr_ =
       std::make_shared<CloudPublisher>(nh, "current_scan", 100, "/map");
-  cloud_pub_ptr_ =
+  local_map_pub_ptr_ =
       std::make_shared<CloudPublisher>(nh, "local_map", 100, "/map");
-  cloud_pub_ptr_ =
+  global_map_pub_ptr_ =
       std::make_shared<CloudPublisher>(nh, "global_map", 100, "/map");
   lidar_odom_pub_ptr_ =
       std::make_shared<OdomPublisher>(nh, "laser_odom", "map", "lidar", 100);
