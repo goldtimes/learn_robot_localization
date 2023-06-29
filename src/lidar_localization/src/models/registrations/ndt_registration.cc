@@ -2,7 +2,8 @@
 #include "glog/logging.h"
 
 namespace lh {
-NDTRegistration::NDTRegistration(const YAML::Node& node) {
+NDTRegistration::NDTRegistration(const YAML::Node& node)
+    : ndt_ptr_(new pcl::NormalDistributionsTransform<PointXYZ, PointXYZ>()) {
   float res = node["res"].as<float>();
   float step_size = node["step_size"].as<float>();
   float trans_eps = node["trans_eps"].as<float>();
@@ -12,7 +13,8 @@ NDTRegistration::NDTRegistration(const YAML::Node& node) {
 }
 
 NDTRegistration::NDTRegistration(float res, float step_size, float trans_eps,
-                                 int max_iter) {
+                                 int max_iter)
+    : ndt_ptr_(new pcl::NormalDistributionsTransform<PointXYZ, PointXYZ>()) {
   SetRegistrationParam(res, step_size, trans_eps, max_iter);
 }
 

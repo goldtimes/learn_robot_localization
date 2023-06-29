@@ -40,6 +40,7 @@ bool FrontEndFlow::Run() {
       continue;
     }
     UpdateGNSSOdometry();
+
     if (UpdateLaserOdometry()) {
       PublishData();
     }
@@ -63,6 +64,7 @@ bool FrontEndFlow::InitCalibration() {
       calibration_received = true;
     }
   }
+  return calibration_received;
 }
 
 bool FrontEndFlow::InitGNSS() {
@@ -81,7 +83,7 @@ bool FrontEndFlow::HasData() {
   if (imu_data_buff_.size() == 0) return false;
 
   if (gnss_data_buff_.size() == 0) return false;
-
+  std::cout << "has data" << std::endl;
   return true;
 }
 

@@ -17,10 +17,11 @@ using namespace lh;
 std::shared_ptr<FrontEndFlow> front_end_flow_ptr;
 
 int main(int argc, char** argv) {
-  google::InitGoogleLogging(argv[0]);
   FLAGS_log_dir = WORK_SPACE_PATH + "/Log";
   FLAGS_alsologtostderr = 1;
-
+  // 帮助打印错误的log
+  google::InitGoogleLogging("lidar_localization");
+  google::InstallFailureSignalHandler();
   ros::init(argc, argv, "front_end_node");
   ros::NodeHandle nh;
 
