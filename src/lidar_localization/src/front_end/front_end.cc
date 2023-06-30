@@ -156,9 +156,10 @@ bool FrontEnd::Update(const CloudData& cloud_data,
 
 bool FrontEnd::updateNewFrame(const Frame& new_key_frame) {
   // 将关键帧点云存储在硬盘中
-  std::string file_path = data_path + "/key_frames/key_frame_" +
-                          std::to_string(global_map_frames_.size()) + ".pcd";
-  pcl::io::savePCDFileBinary(file_path, *new_key_frame.cloud_data_.cloud_ptr_);
+  // std::string file_path = data_path + "/key_frames/key_frame_" +
+  //                         std::to_string(global_map_frames_.size()) + ".pcd";
+  // pcl::io::savePCDFileBinary(file_path,
+  // *new_key_frame.cloud_data_.cloud_ptr_);
   Frame key_frame = new_key_frame;
   key_frame.cloud_data_.cloud_ptr_.reset(
       new PointCloud(*new_key_frame.cloud_data_.cloud_ptr_));

@@ -1,0 +1,21 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "catkin_make",
+			"args": [
+				"--directory",
+				"/home/kilox/learn_robot_localization",
+				"-DCMAKE_BUILD_TYPE=RelWithDebInfo",
+				"-j6",
+				"-DCMAKE_BUILD_TYPE=Release",
+				"-DCATKIN_WHITELIST_PACKAGES=lidar_localization"
+			],
+			"problemMatcher": [
+				"$catkin-gcc"
+			],
+			"group": "build",
+			"label": "catkin_make: build"
+		}
+	]
+}
