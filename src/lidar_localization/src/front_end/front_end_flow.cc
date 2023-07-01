@@ -1,4 +1,5 @@
 #include "front_end/front_end_flow.hh"
+#include <chrono>
 #include "glog/logging.h"
 
 namespace lh {
@@ -38,7 +39,17 @@ bool FrontEndFlow::Run() {
   while (HasData()) {
     if (!ValidData()) continue;
     UpdateGNSSOdometry();
-    if (UpdateLaserOdometry()) PublishData();
+    std::chrono::steady_clock::time_point start_time =
+        std::chrono::steady_clock::now();
+    if (UpdateLaserOdometry()) {
+      std::chrono::steady_clock::time_point end_time =
+          std::chrono::steady_clock::now();
+      auto time_used =
+          std::chrono::duration_cast<std::chrono::duration<double>>(end_time -
+                                                                    start_time);
+      std::cout << "time_used: " << time_used.count() << std::endl;
+      PublishData();
+    }
   }
 
   return true;
@@ -115,6 +126,7 @@ bool FrontEndFlow::UpdateGNSSOdometry() {
   gnss_odometry_(2, 3) = current_gnss_data_.local_U;
   gnss_odometry_.block<3, 3>(0, 0) = current_imu_data_.getOrientationMatrix();
   gnss_odometry_ *= lidar_to_imu_;
+  gnss_pub_ptr_->Publish(gnss_odometry_);
 
   return true;
 }
@@ -136,7 +148,6 @@ bool FrontEndFlow::UpdateLaserOdometry() {
 }
 
 bool FrontEndFlow::PublishData() {
-  gnss_pub_ptr_->Publish(gnss_odometry_);
   laser_odom_pub_ptr_->Publish(laser_odometry_);
 
   front_end_ptr_->GetCurrentScan(current_scan_ptr_);

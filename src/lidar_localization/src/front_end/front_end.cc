@@ -122,6 +122,8 @@ bool FrontEnd::Update(const CloudData& cloud_data,
   PointCloudPtr filtered_cloud_ptr(new PointCloud());
   frame_filter_ptr_->Filter(current_frame_.cloud_data.cloud_ptr_,
                             filtered_cloud_ptr);
+  std::cout << "origin size: " << current_frame_.cloud_data.cloud_ptr_->size()
+            << ".filter size: " << filtered_cloud_ptr->size() << std::endl;
 
   static Eigen::Matrix4f step_pose = Eigen::Matrix4f::Identity();
   static Eigen::Matrix4f last_pose = init_pose_;
@@ -171,17 +173,17 @@ bool FrontEnd::UpdateWithNewFrame(const Frame& new_key_frame) {
   // pcl::io::savePCDFileBinary(file_path,
   // *new_key_frame.cloud_data.cloud_ptr_);
 
-  Frame key_frame = new_key_frame;
+  // Frame key_frame = new_key_frame;
   // 这一步的目的是为了把关键帧的点云保存下来
   // 由于用的是共享指针，所以直接复制只是复制了一个指针而已
   // 此时无论你放多少个关键帧在容器里，这些关键帧点云指针都是指向的同一个点云
-  key_frame.cloud_data.cloud_ptr_.reset(
-      new PointCloud(*new_key_frame.cloud_data.cloud_ptr_));
+  // key_frame.cloud_data.cloud_ptr_.reset(
+  //     new PointCloud(*new_key_frame.cloud_data.cloud_ptr_));
   PointCloudPtr transformed_cloud_ptr(new PointCloud());
 
   // 更新局部地图
-  local_map_frames_.push_back(key_frame);
-  while (local_map_frames_.size() > static_cast<size_t>(local_frame_num_)) {
+  local_map_frames_.push_back(new_key_frame);
+  while (local_map_frames_.size() > 1) {
     local_map_frames_.pop_front();
   }
   local_map_ptr_.reset(new PointCloud());
@@ -205,8 +207,8 @@ bool FrontEnd::UpdateWithNewFrame(const Frame& new_key_frame) {
 
   // 保存所有关键帧信息在容器里
   // 存储之前，点云要先释放，因为已经存到了硬盘里，不释放也达不到节省内存的目的
-  key_frame.cloud_data.cloud_ptr_.reset(new PointCloud());
-  global_map_frames_.push_back(key_frame);
+  // key_frame.cloud_data.cloud_ptr_.reset(new PointCloud());
+  // global_map_frames_.push_back(key_frame);
 
   return true;
 }

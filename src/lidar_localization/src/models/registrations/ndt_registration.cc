@@ -29,7 +29,6 @@ bool NDTRegistration::SetRegistrationParam(float res, float step_size,
 
 bool NDTRegistration::SetInputTarget(const PointCloudPtr& input_target) {
   ndt_ptr_->setInputTarget(input_target);
-  std::cout << "SetInputTarget" << std::endl;
   return true;
 }
 bool NDTRegistration::scanMatch(const PointCloudPtr& input_source,
