@@ -127,6 +127,7 @@ bool FrontEndFlow::UpdateGNSSOdometry() {
   gnss_odometry_.block<3, 3>(0, 0) = current_imu_data_.getOrientationMatrix();
   gnss_odometry_ *= lidar_to_imu_;
   gnss_pub_ptr_->Publish(gnss_odometry_);
+  front_end_ptr_->SetInitPose(gnss_odometry_);
 
   return true;
 }
@@ -141,10 +142,10 @@ bool FrontEndFlow::UpdateLaserOdometry() {
   }
 
   laser_odometry_ = Eigen::Matrix4f::Identity();
-  if (front_end_ptr_->Update(current_cloud_data_, laser_odometry_))
-    return true;
-  else
-    return false;
+  // if (front_end_ptr_->Update(current_cloud_data_, laser_odometry_))
+  //   return true;
+  // else
+  //   return false;
 }
 
 bool FrontEndFlow::PublishData() {
@@ -159,7 +160,7 @@ bool FrontEndFlow::PublishData() {
   return true;
 }
 
-bool FrontEndFlow::SaveMap() { return front_end_ptr_->SaveMap(); }
+// bool FrontEndFlow::SaveMap() { return front_end_ptr_->SaveMap(); }
 
 bool FrontEndFlow::PublishGlobalMap() {
   if (front_end_ptr_->GetNewGlobalMap(global_map_ptr_)) {

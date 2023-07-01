@@ -4,9 +4,10 @@
             "name": "Linux",
             "includePath": [
                 "/usr/include/**",
+                "/usr/local/include/**",
                 "/opt/ros/melodic/include/**",
                 "/home/kilox/learn_robot_localization/src/**",
-                "${workspaceFolder}/build/lidar_localization/include"
+                "${workspaceFolder}/src/lidar_localization/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",

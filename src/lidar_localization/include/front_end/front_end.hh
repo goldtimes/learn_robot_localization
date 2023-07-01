@@ -26,33 +26,28 @@ class FrontEnd {
  public:
   FrontEnd();
 
-  bool InitWithConfig();
-  bool Update(const CloudData& cloud_data, Eigen::Matrix4f& cloud_pose);
+  Eigen::Matrix4f Update(const CloudData& cloud_data);
   bool SetInitPose(const Eigen::Matrix4f& init_pose);
+  bool SetPredictPose(const Eigen::Matrix4f& predict_pose);
 
-  bool SaveMap();
   bool GetNewLocalMap(PointCloudPtr& local_map_ptr);
   bool GetNewGlobalMap(PointCloudPtr& global_map_ptr);
   bool GetCurrentScan(PointCloudPtr& current_scan_ptr);
 
  private:
-  bool InitParam(const YAML::Node& config_node);
-  bool InitDataPath(const YAML::Node& config_node);
-  bool InitRegistration(
-      std::shared_ptr<RegistrationInterface>& registration_ptr,
-      const YAML::Node& config_node);
-  bool InitFilter(std::string filter_user,
-                  std::shared_ptr<CloudFilterInterface>& filter_ptr,
-                  const YAML::Node& config_node);
-  bool UpdateWithNewFrame(const Frame& new_key_frame);
+  void UpdateNewFrame(const Frame& new_key_frame);
 
  private:
   std::string data_path_ = "";
 
-  std::shared_ptr<CloudFilterInterface> frame_filter_ptr_;
-  std::shared_ptr<CloudFilterInterface> local_map_filter_ptr_;
-  std::shared_ptr<CloudFilterInterface> display_filter_ptr_;
-  std::shared_ptr<RegistrationInterface> registration_ptr_;
+  // std::shared_ptr<CloudFilterInterface> frame_filter_ptr_;
+  // std::shared_ptr<CloudFilterInterface> local_map_filter_ptr_;
+  // std::shared_ptr<CloudFilterInterface> display_filter_ptr_;
+  // std::shared_ptr<RegistrationInterface> registration_ptr_;
+
+  pcl::VoxelGrid<PointXYZ> cloud_filter_;
+  pcl::VoxelGrid<PointXYZ> local_map_filter_;
+  pcl::VoxelGrid<PointXYZ> display_filter_;
 
   std::deque<Frame> local_map_frames_;
   std::deque<Frame> global_map_frames_;
@@ -65,6 +60,8 @@ class FrontEnd {
   Frame current_frame_;
 
   Eigen::Matrix4f init_pose_ = Eigen::Matrix4f::Identity();
+  Eigen::Matrix4f predict_pose_ = Eigen::Matrix4f::Identity();
+  pcl::NormalDistributionsTransform<PointXYZ, PointXYZ>::Ptr ndt_ptr_;
 
   float key_frame_distance_ = 2.0;
   int local_frame_num_ = 20;
