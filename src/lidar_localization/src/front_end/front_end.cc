@@ -127,10 +127,10 @@ bool FrontEnd::Update(const CloudData& cloud_data,
     // 更新局部地图容器和全局地图容器
     updateNewFrame(current_frame_);
     cloud_pose = current_frame_.pose;
-    std::cout << "第一帧" << std::endl;
+    // std::cout << "第一帧" << std::endl;
     return true;
   }
-  std::cout << "scanMatch" << std::endl;
+  // std::cout << "scanMatch" << std::endl;
   // 不是第一帧的数据
   registration_ptr_->scanMatch(filtered_cloud_ptr, predict_pose,
                                match_result_cloud_ptr_, current_frame_.pose);
@@ -149,8 +149,6 @@ bool FrontEnd::Update(const CloudData& cloud_data,
     updateNewFrame(current_frame_);
     last_key_frame_pose = current_frame_.pose;
   }
-  std::cout << "success" << std::endl;
-
   return true;
 }
 
@@ -167,7 +165,7 @@ bool FrontEnd::updateNewFrame(const Frame& new_key_frame) {
   PointCloudPtr transformed_cloud_ptr(new PointCloud());
   // localmap deque维护的frame个数是20个
   local_map_frames_.push_back(key_frame);
-  while (local_map_frames_.size() > 1) {
+  while (local_map_frames_.size() > local_frame_num_) {
     local_map_frames_.pop_front();
   }
   local_map_ptr_.reset(new PointCloud());
@@ -184,14 +182,14 @@ bool FrontEnd::updateNewFrame(const Frame& new_key_frame) {
   has_new_local_map_ = true;
   // 更新ndt匹配的目标点云
   if (local_map_frames_.size() < 10) {
-    std::cout << "local_map_ptr_: " << local_map_ptr_->size() << std::endl;
+    // std::cout << "local_map_ptr_: " << local_map_ptr_->size() << std::endl;
 
     registration_ptr_->SetInputTarget(local_map_ptr_);
   } else {
     // 大于10帧，经过过滤后在匹配
     PointCloudPtr filter_local_map_ptr(new PointCloud());
     local_map_filter_ptr_->Filter(local_map_ptr_, filter_local_map_ptr);
-    registration_ptr_->SetInputTarget(local_map_ptr_);
+    registration_ptr_->SetInputTarget(filter_local_map_ptr);
   }
   key_frame.cloud_data_.cloud_ptr_.reset(new PointCloud());
   global_map_frames_.push_back(key_frame);
@@ -215,9 +213,9 @@ bool FrontEnd::saveMap() {
     *global_map_ptr_ += *transformed_cloud_ptr;
   }
 
-  std::string map_file_path = data_path + "/map.pcd";
-  pcl::io::savePCDFileBinary(map_file_path, *global_map_ptr_);
-  has_new_global_map_ = true;
+  // std::string map_file_path = data_path + "/map.pcd";
+  // pcl::io::savePCDFileBinary(map_file_path, *global_map_ptr_);
+  // has_new_global_map_ = true;
 
   return true;
 }

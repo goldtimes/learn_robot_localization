@@ -128,7 +128,7 @@ bool FrontEndFlow::UpdateLaserOdometry() {
     lidar_odom_ = gnss_odom_;
     return true;
   }
-  lidar_odom_ = Eigen::Matrix4f::Identity();
+  lidar_odom_ = gnss_odom_;
   if (front_end_ptr_->Update(current_cloud_data_, lidar_odom_)) {
     return true;
   } else
