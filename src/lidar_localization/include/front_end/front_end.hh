@@ -16,39 +16,39 @@
 #include "sensor_data/cloud_data.hpp"
 
 namespace lh {
-
-// 关键帧作为地图，我们要保存地图的位姿和点云数据
-
-struct Frame {
- public:
-  Eigen::Matrix4f pose = Eigen::Matrix4f::Identity();
-  CloudData cloud_data_;
-};
-
 class FrontEnd {
  public:
+  struct Frame {
+    Eigen::Matrix4f pose = Eigen::Matrix4f::Identity();
+    CloudData cloud_data;
+  };
+
+ public:
   FrontEnd();
+
   bool InitWithConfig();
-  bool Update(const CloudData&, Eigen::Matrix4f& cloud_pose);
-  bool setInitPose(const Eigen::Matrix4f& init_pose);
-  bool saveMap();
-  bool getNewLocalMap(PointCloudPtr& local_map_ptr);
-  bool getNewGlobalMap(PointCloudPtr& global_map_ptr);
-  bool getCurrentScan(PointCloudPtr& current_scan_ptr);
+  bool Update(const CloudData& cloud_data, Eigen::Matrix4f& cloud_pose);
+  bool SetInitPose(const Eigen::Matrix4f& init_pose);
+
+  bool SaveMap();
+  bool GetNewLocalMap(PointCloudPtr& local_map_ptr);
+  bool GetNewGlobalMap(PointCloudPtr& global_map_ptr);
+  bool GetCurrentScan(PointCloudPtr& current_scan_ptr);
 
  private:
-  bool initParam(const YAML::Node& config_node);
-  bool initDataPath(const YAML::Node& config_node);
-  bool initRegistration(
+  bool InitParam(const YAML::Node& config_node);
+  bool InitDataPath(const YAML::Node& config_node);
+  bool InitRegistration(
       std::shared_ptr<RegistrationInterface>& registration_ptr,
       const YAML::Node& config_node);
-  bool initFilter(std::string filter_use,
+  bool InitFilter(std::string filter_user,
                   std::shared_ptr<CloudFilterInterface>& filter_ptr,
-                  const YAML::Node& node);
-  bool updateNewFrame(const Frame& new_key_frame);
+                  const YAML::Node& config_node);
+  bool UpdateWithNewFrame(const Frame& new_key_frame);
 
  private:
-  std::string data_path = "";
+  std::string data_path_ = "";
+
   std::shared_ptr<CloudFilterInterface> frame_filter_ptr_;
   std::shared_ptr<CloudFilterInterface> local_map_filter_ptr_;
   std::shared_ptr<CloudFilterInterface> display_filter_ptr_;
@@ -59,13 +59,12 @@ class FrontEnd {
 
   bool has_new_local_map_ = false;
   bool has_new_global_map_ = false;
-
   PointCloudPtr local_map_ptr_;
   PointCloudPtr global_map_ptr_;
-  PointCloudPtr match_result_cloud_ptr_;
+  PointCloudPtr result_cloud_ptr_;
+  Frame current_frame_;
 
   Eigen::Matrix4f init_pose_ = Eigen::Matrix4f::Identity();
-  Frame current_frame_;
 
   float key_frame_distance_ = 2.0;
   int local_frame_num_ = 20;

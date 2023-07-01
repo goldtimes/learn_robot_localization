@@ -14,26 +14,37 @@
 #include "tf/tf_listener.hh"
 
 using namespace lh;
-std::shared_ptr<FrontEndFlow> front_end_flow_ptr;
 
-int main(int argc, char** argv) {
+std::shared_ptr<FrontEndFlow> _front_end_flow_ptr;
+
+// bool save_map_callback(saveMap::Request &request, saveMap::Response
+// &response) {
+//   response.succeed = _front_end_flow_ptr->SaveMap();
+//   _front_end_flow_ptr->PublishGlobalMap();
+//   return response.succeed;
+// }
+
+int main(int argc, char *argv[]) {
+  google::InitGoogleLogging(argv[0]);
   FLAGS_log_dir = WORK_SPACE_PATH + "/Log";
   FLAGS_alsologtostderr = 1;
-  // 帮助打印错误的log
-  google::InitGoogleLogging(argv[0]);
-  google::InstallFailureSignalHandler();
+
   ros::init(argc, argv, "front_end_node");
   ros::NodeHandle nh;
 
   // ros::ServiceServer service =
   //     nh.advertiseService("save_map", save_map_callback);
-  front_end_flow_ptr = std::make_shared<FrontEndFlow>(nh);
+  _front_end_flow_ptr = std::make_shared<FrontEndFlow>(nh);
+
   ros::Rate rate(100);
   while (ros::ok()) {
     ros::spinOnce();
-    front_end_flow_ptr->Run();
+
+    _front_end_flow_ptr->Run();
+
     rate.sleep();
   }
+
   return 0;
 }
 

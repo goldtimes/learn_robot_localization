@@ -14,13 +14,13 @@ namespace lh {
 class FrontEndFlow {
  public:
   FrontEndFlow(ros::NodeHandle& nh);
+
   bool Run();
   bool SaveMap();
   bool PublishGlobalMap();
 
  private:
   bool ReadData();
-  // lidar_to_imu的坐标变换
   bool InitCalibration();
   bool InitGNSS();
   bool HasData();
@@ -37,15 +37,14 @@ class FrontEndFlow {
   std::shared_ptr<CloudPublisher> cloud_pub_ptr_;
   std::shared_ptr<CloudPublisher> local_map_pub_ptr_;
   std::shared_ptr<CloudPublisher> global_map_pub_ptr_;
-  std::shared_ptr<OdomPublisher> lidar_odom_pub_ptr_;
-  std::shared_ptr<OdomPublisher> gnss_odom_pub_ptr_;
+  std::shared_ptr<OdomPublisher> laser_odom_pub_ptr_;
+  std::shared_ptr<OdomPublisher> gnss_pub_ptr_;
   std::shared_ptr<FrontEnd> front_end_ptr_;
 
   std::deque<CloudData> cloud_data_buff_;
   std::deque<ImuData> imu_data_buff_;
   std::deque<GNSSData> gnss_data_buff_;
-  // 初始化姿态
-  Eigen::Matrix4f lidar_to_imu = Eigen::Matrix4f::Identity();
+  Eigen::Matrix4f lidar_to_imu_ = Eigen::Matrix4f::Identity();
   CloudData current_cloud_data_;
   ImuData current_imu_data_;
   GNSSData current_gnss_data_;
@@ -53,8 +52,7 @@ class FrontEndFlow {
   PointCloudPtr local_map_ptr_;
   PointCloudPtr global_map_ptr_;
   PointCloudPtr current_scan_ptr_;
-
-  Eigen::Matrix4f gnss_odom_ = Eigen::Matrix4f::Identity();
-  Eigen::Matrix4f lidar_odom_ = Eigen::Matrix4f::Identity();
+  Eigen::Matrix4f gnss_odometry_ = Eigen::Matrix4f::Identity();
+  Eigen::Matrix4f laser_odometry_ = Eigen::Matrix4f::Identity();
 };
 }  // namespace lh
