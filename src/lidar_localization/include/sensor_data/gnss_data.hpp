@@ -4,6 +4,7 @@
 #include <vector>
 
 #include <Geocentric/LocalCartesian.hpp>
+#include <deque>
 
 namespace lh {
 class GNSSData {
@@ -26,5 +27,7 @@ class GNSSData {
  public:
   void InitOriginPosition();
   void UpdateXYZ();
+  static bool SyncData(std::deque<GNSSData>& UnsyncedData,
+                       std::deque<GNSSData>& SyncedData, double sync_time);
 };
 }  // namespace lh

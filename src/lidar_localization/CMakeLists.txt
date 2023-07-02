@@ -16,6 +16,9 @@ find_package(catkin REQUIRED COMPONENTS
   geometry_msgs
   eigen_conversions
 )
+
+
+
 # find_package(eigen3 REQUIRED)
 
 include_directories(
