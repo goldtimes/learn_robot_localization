@@ -1,11 +1,11 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(lidar_localization)
 
-SET(CMAKE_BUILD_TYPE "Debug")
+SET(CMAKE_BUILD_TYPE "Release")
 # SET(CMAKE_CXX_FLAGS_RELEASE )
 add_compile_options(-std=c++11)
 add_definitions(-std=c++11)
-add_definitions("-Wall -g") 
+# add_definitions("-Wall -g") 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
