@@ -35,7 +35,7 @@ FrontEndFlow::FrontEndFlow(ros::NodeHandle& nh) {
 }
 
 void FrontEndFlow::Run() {
-  ReadData();
+  if (!ReadData()) return;
 
   if (!InitCalibration()) return;
 
@@ -44,7 +44,19 @@ void FrontEndFlow::Run() {
   while (HasData()) {
     if (!ValidData()) continue;
     UpdateGNSSOdometry();
-    UpdateLaserOdometry();
+    static bool front_end_pose_inited = false;
+    if (!front_end_pose_inited) {
+      front_end_pose_inited = true;
+      front_end_ptr_->SetInitPose(gnss_odometry_);
+    }
+    front_end_ptr_->SetPredictPose(gnss_odometry_);
+    Eigen::Matrix4f laser_matrix = front_end_ptr_->Update(current_cloud_data_);
+    laser_odom_pub_ptr_->Publish(laser_matrix);
+
+    front_end_ptr_->GetCurrentScan(current_scan_ptr_);
+    cloud_pub_ptr_->Publish(current_scan_ptr_);
+    if (front_end_ptr_->GetNewLocalMap(local_map_ptr_))
+      local_map_pub_ptr_->Publish(local_map_ptr_);
     // if (UpdateLaserOdometry()) PublishData();
   }
 }
@@ -125,17 +137,15 @@ bool FrontEndFlow::UpdateGNSSOdometry() {
 }
 
 bool FrontEndFlow::UpdateLaserOdometry() {
-  // static bool front_end_pose_inited = false;
-  // if (!front_end_pose_inited) {
-  //   front_end_pose_inited = true;
-  //   front_end_ptr_->SetInitPose(gnss_odometry_);
-  //   laser_odometry_ = gnss_odometry_;
-  //   return true;
-  // }
+  static bool front_end_pose_inited = false;
+  if (!front_end_pose_inited) {
+    front_end_pose_inited = true;
+    front_end_ptr_->SetInitPose(gnss_odometry_);
+    laser_odometry_ = gnss_odometry_;
+    return true;
+  }
 
-  // laser_odometry_ = Eigen::Matrix4f::Identity();
-  std::cout << "current_data: " << current_cloud_data_.cloud_ptr_->size()
-            << std::endl;
+  laser_odometry_ = Eigen::Matrix4f::Identity();
   laser_odometry_ = front_end_ptr_->Update(current_cloud_data_);
   return true;
 }
