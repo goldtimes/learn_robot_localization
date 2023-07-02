@@ -33,8 +33,9 @@ FrontEnd::FrontEnd()
 Eigen::Matrix4f FrontEnd::Update(const CloudData& cloud_data) {
   current_frame_.cloud_data.time = cloud_data.time;
   std::vector<int> indices;
-  pcl::removeNaNFromPointCloud(*cloud_data.cloud_ptr_,
-                               *current_frame_.cloud_data.cloud_ptr_, indices);
+  pcl::removeNaNFromPointCloud(*(cloud_data.cloud_ptr_),
+                               *(current_frame_.cloud_data.cloud_ptr_),
+                               indices);
 
   PointCloudPtr filtered_cloud_ptr(new PointCloud());
   cloud_filter_.setInputCloud(current_frame_.cloud_data.cloud_ptr_);
@@ -54,7 +55,7 @@ Eigen::Matrix4f FrontEnd::Update(const CloudData& cloud_data) {
   }
 
   // 不是第一帧，就正常匹配
-  ndt_ptr_->setInputSource(filtered_cloud_ptr);
+  ndt_ptr_->setInputCloud(filtered_cloud_ptr);
   ndt_ptr_->align(*result_cloud_ptr_, predict_pose);
   current_frame_.pose = ndt_ptr_->getFinalTransformation();
 
@@ -91,7 +92,7 @@ void FrontEnd::UpdateNewFrame(const Frame& new_key_frame) {
   // 由于用的是共享指针，所以直接复制只是复制了一个指针而已
   // 此时无论你放多少个关键帧在容器里，这些关键帧点云指针都是指向的同一个点云
   key_frame.cloud_data.cloud_ptr_.reset(
-      new PointCloud(*new_key_frame.cloud_data.cloud_ptr_));
+      new PointCloud(*(new_key_frame.cloud_data.cloud_ptr_)));
   PointCloudPtr transformed_cloud_ptr(new PointCloud());
 
   // 更新局部地图
@@ -101,7 +102,7 @@ void FrontEnd::UpdateNewFrame(const Frame& new_key_frame) {
   }
   local_map_ptr_.reset(new PointCloud());
   for (size_t i = 0; i < local_map_frames_.size(); ++i) {
-    pcl::transformPointCloud(*local_map_frames_.at(i).cloud_data.cloud_ptr_,
+    pcl::transformPointCloud(*(local_map_frames_.at(i).cloud_data.cloud_ptr_),
                              *transformed_cloud_ptr,
                              local_map_frames_.at(i).pose);
     *local_map_ptr_ += *transformed_cloud_ptr;
@@ -125,9 +126,9 @@ void FrontEnd::UpdateNewFrame(const Frame& new_key_frame) {
   } else {
     global_map_ptr_.reset(new PointCloud());
     for (size_t i = 0; i < global_map_frames_.size(); ++i) {
-      pcl::transformPointCloud(*global_map_frames_.at(i).cloud_data.cloud_ptr_,
-                               *transformed_cloud_ptr,
-                               global_map_frames_.at(i).pose);
+      pcl::transformPointCloud(
+          *(global_map_frames_.at(i).cloud_data.cloud_ptr_),
+          *transformed_cloud_ptr, global_map_frames_.at(i).pose);
       *global_map_ptr_ += *transformed_cloud_ptr;
     }
     has_new_global_map_ = true;
