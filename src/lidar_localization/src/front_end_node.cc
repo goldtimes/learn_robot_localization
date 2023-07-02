@@ -3,7 +3,7 @@
 #include <ros/ros.h>
 
 #include <memory>
-#include "front_end/front_end.hh"
+#include "front_end/front_end_flow.hh"
 #include "global_defination/global_defination.h"
 #include "publisher/cloud_pub.hh"
 #include "publisher/odom_pub.hh"
@@ -13,6 +13,33 @@
 #include "tf/tf_listener.hh"
 
 using namespace lh;
+
+std::shared_ptr<FrontEndFlow> _front_end_flow_ptr;
+
+// int main(int argc, char *argv[]) {
+//   google::InitGoogleLogging(argv[0]);
+//   google::InstallFailureSignalHandler();
+//   FLAGS_log_dir = WORK_SPACE_PATH + "/Log";
+//   FLAGS_alsologtostderr = 1;
+
+//   ros::init(argc, argv, "front_end_node");
+//   ros::NodeHandle nh;
+
+//   // ros::ServiceServer service =
+//   //     nh.advertiseService("save_map", save_map_callback);
+//   _front_end_flow_ptr = std::make_shared<FrontEndFlow>(nh);
+
+//   ros::Rate rate(100);
+//   while (ros::ok()) {
+//     ros::spinOnce();
+
+//     _front_end_flow_ptr->Run();
+
+//     rate.sleep();
+//   }
+
+//   return 0;
+// }
 
 int main(int argc, char *argv[]) {
   google::InitGoogleLogging(argv[0]);
