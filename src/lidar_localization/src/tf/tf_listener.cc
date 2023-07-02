@@ -10,7 +10,7 @@ bool TFListener::LookupData(Eigen::Matrix4f& transform_matrix) {
     tf::StampedTransform transform;
     listener_.lookupTransform(base_frame_id_, child_frame_id_, ros::Time(0),
                               transform);
-    TransformToMatrix(transform, transform_matrix);
+    return TransformToMatrix(transform, transform_matrix);
   } catch (tf::TransformException& e) {
     ROS_ERROR("%s", e.what());
     return false;

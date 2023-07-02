@@ -3,8 +3,8 @@ project(lidar_localization)
 
 SET(CMAKE_BUILD_TYPE "Debug")
 # SET(CMAKE_CXX_FLAGS_RELEASE )
-add_compile_options(-std=c++14)
-add_definitions(-std=c++14)
+add_compile_options(-std=c++11)
+add_definitions(-std=c++11)
 add_definitions("-Wall -g") 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -50,8 +50,8 @@ list(REMOVE_ITEM ALL_SRCS ${NODE_SRCS})
 # 删除 third_party .cc文件
 list(REMOVE_ITEM ALL_SRCS ${THIRD_PARTY_SRCS})
 
-add_executable(test_frame_node src/test_frame_node.cc ${ALL_SRCS})
-target_link_libraries(test_frame_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
+# add_executable(test_frame_node src/test_frame_node.cc ${ALL_SRCS})
+# target_link_libraries(test_frame_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
 
 add_executable(front_end_node src/front_end_node.cc ${ALL_SRCS})
 target_link_libraries(front_end_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES})
@@ -59,8 +59,8 @@ target_link_libraries(front_end_node ${catkin_LIBRARIES} ${ALL_TARGET_LIBRARIES}
 install(TARGETS front_end_node 
   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
-install(TARGETS test_frame_node 
-  DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
+# install(TARGETS test_frame_node 
+#   DESTINATION ${CATKIN_PACKAGE_BIN_DESTINATION})
 
 install(DIRECTORY launch rviz include cmake 
   DESTINATION ${CATKIN_PACKAGE_SHARE_DESTINATION})
