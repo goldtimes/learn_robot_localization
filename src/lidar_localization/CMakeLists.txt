@@ -36,6 +36,7 @@ include(cmake/PCL.cmake)
 include(cmake/eigen.cmake)
 include(cmake/geographic.cmake)
 
+
 include_directories(include ${catkin_INCLUDE_DIRS})
 include(cmake/global_defination.cmake)
 catkin_package()

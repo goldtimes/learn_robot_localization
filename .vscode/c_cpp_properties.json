@@ -8,7 +8,8 @@
                 "/opt/ros/melodic/include/**",
                 "/home/kilox/learn_robot_localization/src/**",
                 "${workspaceFolder}/src/lidar_localization/include",
-                "${workspaceFolder}/build/lidar_localization/include"
+                "${workspaceFolder}/build/lidar_localization/include",
+                "${workspaceFolder}/devel/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",

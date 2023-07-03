@@ -39,3 +39,27 @@ pcl的ndt匹配算法
 1. 匹配的功能模块呢，后端闭环检测也是需要的，地图定位也是需要的。
 2. 滤波算法也是许多模块需要的，滤波的参数也不能如现在一样，给固定值
 3. 匹配方式的升级，现在用ndt,那么如果要支持icp呢？多态继承的方式
+
+
+## 里程计精度的评估
+### 采用开源的评价方法evo
+1. 录制gnss数据和里程计数据
+2. 将数据交给evo处理
+
+### 安装 evo
+```bash
+pip install evo --upgrade --no-binary evo
+```
+
+### 评价
+#### evo_rpe 每段距离内的误差评价
+```bash
+# kitti的odometry榜单中的距离误差指标
+evo_rpe kitti ground_truth.txt laser_odom.txt -r trans_part --delta 100 --plot --plot_mode xyz
+```
+
+#### evo_ape 绝对误差随路程的评价
+```bash
+# kitti的odometry榜单中的距离误差指标
+evo_ape kitti ground_truth.txt laser_odom.txt -r full --plot --plot_mode xyz
+```
