@@ -23,7 +23,7 @@ bool LidarUndistortion::undistortion(
   // 计算第一个点的角度
   float start_orientation =
       atan2(origin_cloud_ptr->points[0].y, origin_cloud_ptr->points[0].x);
-  Eigen::AngleAxisf t_V(start_orientation, Eigen::Vector3d::UnitZ());
+  Eigen::AngleAxisf t_V(start_orientation, Eigen::Vector3f::UnitZ());
   Eigen::Matrix3f rotate_matrix = t_V.matrix();
   Eigen::Matrix4f transform_matrix = Eigen::Matrix4f::Identity();
   transform_matrix.block<3, 3>(0, 0) = rotate_matrix.inverse();

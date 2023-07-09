@@ -9,6 +9,7 @@
 #include <ros/ros.h>
 
 #include "lidar_localization/front_end/front_end.hpp"
+#include "lidar_localization/lidar_undistortion/lidar_undstortion.hh"
 #include "lidar_localization/publisher/cloud_publisher.hpp"
 #include "lidar_localization/publisher/odometry_publisher.hpp"
 #include "lidar_localization/subscriber/cloud_subscriber.hpp"
@@ -65,6 +66,8 @@ class FrontEndFlow {
   CloudData::CLOUD_PTR current_scan_ptr_;
   Eigen::Matrix4f gnss_odometry_ = Eigen::Matrix4f::Identity();
   Eigen::Matrix4f laser_odometry_ = Eigen::Matrix4f::Identity();
+
+  std::shared_ptr<LidarUndistortion> distortion_adjust_ptr_;
 };
 }  // namespace lidar_localization
 

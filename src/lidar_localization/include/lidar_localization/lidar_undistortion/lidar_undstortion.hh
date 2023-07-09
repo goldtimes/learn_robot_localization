@@ -19,7 +19,7 @@ class LidarUndistortion {
 
  private:
   float scan_period_;
-  Eigen::Vector3d velocity_;
+  Eigen::Vector3f velocity_;
   Eigen::Vector3f angular_rate_;
 };
 }  // namespace lidar_localization

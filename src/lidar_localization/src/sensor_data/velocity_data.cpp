@@ -58,7 +58,7 @@ bool VelocityData::SyncData(std::deque<VelocityData>& UnsyncedData,
 
   return true;
 }
-
+//  https://www.guyuehome.com/19879 imu到lidar速度变换
 void VelocityData::TransformCoordinate(const Eigen::Matrix4f& lidar_to_imu) {
   Eigen::Matrix4d matrix = lidar_to_imu.cast<double>();
   Eigen::Matrix3d rotation = matrix.block<3, 3>(0, 0);
@@ -67,8 +67,21 @@ void VelocityData::TransformCoordinate(const Eigen::Matrix4f& lidar_to_imu) {
   //    w,v 乘上旋转矩阵T_lidar_to_imu
   w = rotation * w;
   v = rotation * v;
-  Eigen::Vector3d trans(matrix(0, 3), matrix(1, 3), matrix(2, 3));
+  Eigen::Vector3d r(matrix(0, 3), matrix(1, 3), matrix(2, 3));
   Eigen::Vector3d delta_v;
+
+  delta_v(0) = w(1) * r(2) - w(2) * r(1);
+  delta_v(1) = w(2) * r(0) - w(0) * r(2);
+  // delta_v(2) = w(1) * r(1) - w(1) * r(0);
+  delta_v(2) = w(0) * r(1) - w(1) * r(0);
+  v = v + delta_v;
+
+  angular_velocity.x = w(0);
+  angular_velocity.y = w(1);
+  angular_velocity.z = w(2);
+  linear_velocity.x = v(0);
+  linear_velocity.y = v(1);
+  linear_velocity.z = v(2);
 }
 
 }  // namespace lidar_localization
