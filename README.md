@@ -75,3 +75,8 @@ evo_ape kitti ground_truth.txt laser_odom.txt -r full --plot --plot_mode xyz
     dt * 运动 = 相对变换
   2. 转换激光点
    T * 激光点
+
+### 那么如何去畸变呢？
+1. 首先我们通过velocity订阅者可以拿到车体的线速度和角速度信息。
+2. 这个车体的速度是imu坐标系下的，所以需要转换到激光坐标系下
+3. 得到lidar坐标系下的速度之后，便可以来去畸变了。
