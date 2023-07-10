@@ -83,7 +83,8 @@ evo_ape kitti ground_truth.txt laser_odom.txt -r full --plot --plot_mode xyz
 
 
 # 添加后端优化和闭环检测模块
-优化代码结构
+优化代码结构, 数据处理是mapping和定位模块都需要的。
+后面四个模块我们放到mapping文件中
 ## 模块功能分类
 ### 数据预处理
 1. 接受传感器数据
