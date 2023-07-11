@@ -12,12 +12,35 @@
 namespace lidar_localization {
 class Viewer {
  public:
-  Viewer() = default;
+  Viewer();
+  bool UpdateWithOptimizedKeyFrames(std::deque<KeyFrame>& optimized_key_frames);
+  bool GetLocalMap(CloudData::CLOUD_PTR& local_map_ptr);
+  bool GetGlobalMap(CloudData::CLOUD_PTR& local_map_ptr);
+  bool HasNewLocalMap();
+  bool HasNewGlobalMap();
+  bool SaveMap();
+  Eigen::Matrix4f& GetCurrentPose();
+  CloudData::CLOUD_PTR& GetCurrentScan();
+  bool UpdateWithNewKeyFrame(std::deque<KeyFrame>& new_key_frames,
+                             PoseData& transformed_data, CloudData& cloud_data);
+
+ private:
+  bool InitWithConfig();
+  bool InitParam(const YAML::Node& config_node);
+  bool InitDataPath(const YAML::Node& config_node);
+  bool InitFilter(std::string& filter_user,
+                  std::shared_ptr<CloudFilterInterface>& filter_ptr,
+                  const YAML::Node& config_node);
+  bool OptimizedKeyFrames();
+  bool JointGlobalMap(CloudData::CLOUD_PTR& global_map_ptr);
+  bool JointLocalMap(CloudData::CLOUD_PTR& local_map_ptr);
+  bool JointCloudMap(const std::deque<KeyFrame>& key_frames,
+                     CloudData::CLOUD_PTR& map_cloud_ptr);
 
  private:
   std::string data_path_ = "";
   std::string key_frames_path_ = "";
-  std::map_path_ = "";
+  std::string map_path_ = "";
   int local_frame_num_ = 20;
 
   std::shared_ptr<CloudFilterInterface> frame_filter_ptr_;
