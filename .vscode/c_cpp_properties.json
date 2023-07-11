@@ -9,7 +9,8 @@
                 "/home/kilox/learn_robot_localization/src/**",
                 "${workspaceFolder}/src/lidar_localization/include",
                 "${workspaceFolder}/build/lidar_localization/include",
-                "${workspaceFolder}/devel/include"
+                "${workspaceFolder}/devel/include",
+                "${workspaceFolder}/src/lidar_localization/include"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/g++",
