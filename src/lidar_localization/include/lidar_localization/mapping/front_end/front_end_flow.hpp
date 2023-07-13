@@ -8,8 +8,8 @@
 
 #include <ros/ros.h>
 
-#include "lidar_localization/front_end/front_end.hpp"
 #include "lidar_localization/lidar_undistortion/lidar_undstortion.hh"
+#include "lidar_localization/mapping/front_end/front_end.hpp"
 #include "lidar_localization/publisher/cloud_publisher.hpp"
 #include "lidar_localization/publisher/odometry_publisher.hpp"
 #include "lidar_localization/subscriber/cloud_subscriber.hpp"

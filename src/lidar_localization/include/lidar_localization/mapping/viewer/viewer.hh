@@ -28,7 +28,7 @@ class Viewer {
   bool InitWithConfig();
   bool InitParam(const YAML::Node& config_node);
   bool InitDataPath(const YAML::Node& config_node);
-  bool InitFilter(std::string& filter_user,
+  bool InitFilter(const std::string& filter_user,
                   std::shared_ptr<CloudFilterInterface>& filter_ptr,
                   const YAML::Node& config_node);
   bool OptimizedKeyFrames();

@@ -3,7 +3,7 @@
  * @Author: Ren Qian
  * @Date: 2020-02-10 08:38:42
  */
-#include "lidar_localization/front_end/front_end_flow.hpp"
+#include "lidar_localization/mapping/front_end/front_end_flow.hpp"
 #include "lidar_localization/global_defination/global_defination.h"
 #include "lidar_localization/tools/file_manager.hh"
 
@@ -224,22 +224,19 @@ bool FrontEndFlow::PublishData() {
   gnss_pub_ptr_->Publish(gnss_odometry_);
   laser_odom_pub_ptr_->Publish(laser_odometry_);
 
-  front_end_ptr_->GetCurrentScan(current_scan_ptr_);
   cloud_pub_ptr_->Publish(current_scan_ptr_);
 
-  if (front_end_ptr_->GetNewLocalMap(local_map_ptr_))
-    local_map_pub_ptr_->Publish(local_map_ptr_);
+  local_map_pub_ptr_->Publish(local_map_ptr_);
 
   return true;
 }
 
-bool FrontEndFlow::SaveMap() { return front_end_ptr_->SaveMap(); }
+bool FrontEndFlow::SaveMap() { return true; }
 
 bool FrontEndFlow::PublishGlobalMap() {
-  if (front_end_ptr_->GetNewGlobalMap(global_map_ptr_)) {
-    global_map_pub_ptr_->Publish(global_map_ptr_);
-    global_map_ptr_.reset(new CloudData::CLOUD());
-  }
+  global_map_pub_ptr_->Publish(global_map_ptr_);
+  global_map_ptr_.reset(new CloudData::CLOUD());
   return true;
 }
+
 }  // namespace lidar_localization

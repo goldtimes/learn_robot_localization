@@ -37,3 +37,5 @@ install
 build
 
 src/lidar_localization/slam_data
+.catkin_tools
+logs
