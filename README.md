@@ -103,3 +103,11 @@ evo_ape kitti ground_truth.txt laser_odom.txt -r full --plot --plot_mode xyz
  ## 显示模块
  1. 根据优化后的位姿生成点云地图
  2. 显示点云地图和当前帧点云地图
+
+
+ # 后端优化
+ 后端优化来消除累积误差，后端的三个库:g2o,ceres,gtsam。同样后端的设计更通用些，可以替换其他优化库
+ g2o只提供了se3的顶点和边。但是我们使用gnss位置做观测，所以需要定义自己的顶点和边。
+ 1. g2o自定义顶点和边
+ 2. g2o优化算法封装
+ 3. back_end对优化算法的调用
