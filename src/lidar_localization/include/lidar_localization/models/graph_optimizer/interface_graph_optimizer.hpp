@@ -15,7 +15,7 @@ class InterfaceGraphOptimizer {
       std::deque<Eigen::Matrix4f>& optimized_pose) = 0;
   virtual int GetNodeNum() = 0;
   // 添加节点、边、鲁棒核
-  virtual void SetEdgeRobusKernerl(std::string robust_kernel_name,
+  virtual void SetEdgeRobustKernel(std::string robust_kernel_name,
                                    double robust_kernel_size) = 0;
   virtual void AddSe3Node(const Eigen::Isometry3d& pose, bool need_fix) = 0;
   virtual void AddSe3Edge(int vertex_index1, int vertex_index2,
@@ -23,10 +23,10 @@ class InterfaceGraphOptimizer {
                           const Eigen::VectorXd& noise) = 0;
   virtual void AddSe3PriorXYZEdge(int se3_vertex_index,
                                   const Eigen::Vector3d& xyz,
-                                  Eigen::VectorXd& noise) = 0;
+                                  const Eigen::VectorXd& noise) = 0;
   virtual void AddSe3PriorQuaternionEdge(int se3_vertex_index,
                                          const Eigen::Quaterniond& quat,
-                                         Eigen::VectorXd& noise) = 0;
+                                         const Eigen::VectorXd& noise) = 0;
   // 设置优化参数
   void SetMaxIterationsNum(int max_iterations_num);
 
