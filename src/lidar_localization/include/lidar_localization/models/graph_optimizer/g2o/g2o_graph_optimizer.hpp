@@ -42,6 +42,7 @@ class G2oGraphOptimizer : public InterfaceGraphOptimizer {
   G2oGraphOptimizer(const std::string& solver_type = "lm_var");
   // 优化
   bool Optimize() override;
+  int GetNodeNum() override;
   // 输出数据
   bool GetOptimizedPose(std::deque<Eigen::Matrix4f>& optimized_pose) override;
   // 添加节点、边、鲁棒核
@@ -58,10 +59,11 @@ class G2oGraphOptimizer : public InterfaceGraphOptimizer {
                                  const Eigen::VectorXd& noise) override;
 
  private:
-  Eigen::MatrixXd CalculateSe3EdgeInformationMatrix(Eigen::VectorXd noise);
+  Eigen::MatrixXd CalculateSe3EdgeInformationMatrix(
+      const Eigen::VectorXd& noise);
   Eigen::MatrixXd CalculateSe3PriorQuaternionEdgeInformationMatrix(
-      Eigen::VectorXd noise);
-  Eigen::MatrixXd CalculateDiagMatrix(Eigen::VectorXd noise);
+      const Eigen::VectorXd& noise);
+  Eigen::MatrixXd CalculateDiagMatrix(const Eigen::VectorXd& noise);
   void AddRobustKernel(g2o::OptimizableGraph::Edge* edge,
                        const std::string& kernel_type, double kernel_size);
 

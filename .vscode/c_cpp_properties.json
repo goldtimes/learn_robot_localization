@@ -10,6 +10,7 @@
                 "${workspaceFolder}/src/lidar_localization/include",
                 "${workspaceFolder}/build/lidar_localization/include",
                 "${workspaceFolder}/devel/include",
+                "${workspaceFolder}/src/lidar_localization/include",
                 "${workspaceFolder}/src/lidar_localization/include"
             ],
             "defines": [],
